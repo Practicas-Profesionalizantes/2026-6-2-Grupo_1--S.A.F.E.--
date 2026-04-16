@@ -4,5 +4,7 @@
 integrantes del proyecto:
 
 Scrum Master: santiago vigo
-Product Owner: leonel Pedraza 
-Equipo de trabajo:Paladea Ian, Cabral Maximo, Gonzalez Morena
+
+Product Owner: leonel Pedraza
+
+Equipo de trabajo:  Paladea Ian,  Cabral Maximo,  Gonzalez Morena
