@@ -1,8 +1,6 @@
 # 2026-6-2-Grupo_1--S.A.F.E--
 Sistema de Automatizacion de Filtracion de Empleados
-
-<img width="1408" height="768" alt="SAFE-Logo" src="https://github.com/user-attachments/assets/ae00e370-11cc-4518-8e4b-03ddf9adcb85" />
-
+<img width="1299" height="601" alt="SAFE-Logo" src="https://github.com/user-attachments/assets/f9d5a98b-4b23-4f58-9728-9b7e453be6ad" />
 
 Integrantes del proyecto:
 
