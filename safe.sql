@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 16-04-2026 a las 22:34:36
--- Versión del servidor: 10.4.24-MariaDB
--- Versión de PHP: 7.4.29
+-- Host: 127.0.0.1
+-- Generation Time: Apr 26, 2026 at 01:52 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `safe`
+-- Database: `safe`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `cv`
+-- Table structure for table `cv`
 --
 
 CREATE TABLE `cv` (
@@ -33,12 +33,12 @@ CREATE TABLE `cv` (
   `archivo_cv` varchar(250) DEFAULT NULL,
   `cumple_requisitos` tinyint(1) DEFAULT NULL,
   `fecha_carga` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `evaluacion`
+-- Table structure for table `evaluacion`
 --
 
 CREATE TABLE `evaluacion` (
@@ -48,12 +48,12 @@ CREATE TABLE `evaluacion` (
   `puntaje_max` int(11) DEFAULT NULL,
   `puntaje_min` int(11) DEFAULT NULL,
   `online` tinyint(1) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `historial`
+-- Table structure for table `historial`
 --
 
 CREATE TABLE `historial` (
@@ -61,12 +61,12 @@ CREATE TABLE `historial` (
   `id_postulante` int(11) DEFAULT NULL,
   `accion` varchar(50) DEFAULT NULL,
   `fecha` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `notificacion`
+-- Table structure for table `notificacion`
 --
 
 CREATE TABLE `notificacion` (
@@ -75,12 +75,12 @@ CREATE TABLE `notificacion` (
   `tipo` varchar(50) DEFAULT NULL,
   `fecha_envio` date DEFAULT NULL,
   `mensaje` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `postulante`
+-- Table structure for table `postulante`
 --
 
 CREATE TABLE `postulante` (
@@ -93,12 +93,12 @@ CREATE TABLE `postulante` (
   `estado_civil` varchar(250) DEFAULT NULL,
   `info_medica` varchar(250) DEFAULT NULL,
   `experiencia` varchar(250) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `puesto`
+-- Table structure for table `puesto`
 --
 
 CREATE TABLE `puesto` (
@@ -106,12 +106,12 @@ CREATE TABLE `puesto` (
   `nombre_puesto` varchar(50) DEFAULT NULL,
   `tipo` varchar(50) DEFAULT NULL,
   `requisitos` varchar(250) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ranking`
+-- Table structure for table `ranking`
 --
 
 CREATE TABLE `ranking` (
@@ -119,12 +119,12 @@ CREATE TABLE `ranking` (
   `id_postulante` int(11) DEFAULT NULL,
   `promedio` decimal(10,0) DEFAULT NULL,
   `posicion` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `resultado_evaluacion`
+-- Table structure for table `resultado_evaluacion`
 --
 
 CREATE TABLE `resultado_evaluacion` (
@@ -134,74 +134,81 @@ CREATE TABLE `resultado_evaluacion` (
   `puntaje_obtenido` int(11) DEFAULT NULL,
   `aprobado` tinyint(1) DEFAULT NULL,
   `intento` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuario`
+-- Table structure for table `usuario`
 --
 
 CREATE TABLE `usuario` (
-  `id` int(11) NOT NULL,
+  `id` bigint(20) NOT NULL,
   `nombre` varchar(250) DEFAULT NULL,
-  `email` varchar(250) DEFAULT NULL,
-  `contraseña` varchar(50) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `rol` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Índices para tablas volcadas
+-- Dumping data for table `usuario`
+--
+
+INSERT INTO `usuario` (`id`, `nombre`, `email`, `password`, `rol`) VALUES
+(1, NULL, 'ttest@mail.com', '12345', NULL);
+
+--
+-- Indexes for dumped tables
 --
 
 --
--- Indices de la tabla `cv`
+-- Indexes for table `cv`
 --
 ALTER TABLE `cv`
   ADD PRIMARY KEY (`id`),
   ADD KEY `dni` (`dni`);
 
 --
--- Indices de la tabla `evaluacion`
+-- Indexes for table `evaluacion`
 --
 ALTER TABLE `evaluacion`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `historial`
+-- Indexes for table `historial`
 --
 ALTER TABLE `historial`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_postulante` (`id_postulante`);
 
 --
--- Indices de la tabla `notificacion`
+-- Indexes for table `notificacion`
 --
 ALTER TABLE `notificacion`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_postulante` (`id_postulante`);
 
 --
--- Indices de la tabla `postulante`
+-- Indexes for table `postulante`
 --
 ALTER TABLE `postulante`
   ADD PRIMARY KEY (`dni`);
 
 --
--- Indices de la tabla `puesto`
+-- Indexes for table `puesto`
 --
 ALTER TABLE `puesto`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `ranking`
+-- Indexes for table `ranking`
 --
 ALTER TABLE `ranking`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_postulante` (`id_postulante`);
 
 --
--- Indices de la tabla `resultado_evaluacion`
+-- Indexes for table `resultado_evaluacion`
 --
 ALTER TABLE `resultado_evaluacion`
   ADD PRIMARY KEY (`id`),
@@ -209,93 +216,93 @@ ALTER TABLE `resultado_evaluacion`
   ADD KEY `id_postulante` (`id_postulante`);
 
 --
--- Indices de la tabla `usuario`
+-- Indexes for table `usuario`
 --
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT de las tablas volcadas
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT de la tabla `cv`
+-- AUTO_INCREMENT for table `cv`
 --
 ALTER TABLE `cv`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `evaluacion`
+-- AUTO_INCREMENT for table `evaluacion`
 --
 ALTER TABLE `evaluacion`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `historial`
+-- AUTO_INCREMENT for table `historial`
 --
 ALTER TABLE `historial`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `notificacion`
+-- AUTO_INCREMENT for table `notificacion`
 --
 ALTER TABLE `notificacion`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `puesto`
+-- AUTO_INCREMENT for table `puesto`
 --
 ALTER TABLE `puesto`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `ranking`
+-- AUTO_INCREMENT for table `ranking`
 --
 ALTER TABLE `ranking`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `resultado_evaluacion`
+-- AUTO_INCREMENT for table `resultado_evaluacion`
 --
 ALTER TABLE `resultado_evaluacion`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `usuario`
+-- AUTO_INCREMENT for table `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- Restricciones para tablas volcadas
+-- Constraints for dumped tables
 --
 
 --
--- Filtros para la tabla `cv`
+-- Constraints for table `cv`
 --
 ALTER TABLE `cv`
   ADD CONSTRAINT `cv_ibfk_1` FOREIGN KEY (`dni`) REFERENCES `postulante` (`dni`);
 
 --
--- Filtros para la tabla `historial`
+-- Constraints for table `historial`
 --
 ALTER TABLE `historial`
   ADD CONSTRAINT `historial_ibfk_1` FOREIGN KEY (`id_postulante`) REFERENCES `postulante` (`dni`);
 
 --
--- Filtros para la tabla `notificacion`
+-- Constraints for table `notificacion`
 --
 ALTER TABLE `notificacion`
   ADD CONSTRAINT `notificacion_ibfk_1` FOREIGN KEY (`id_postulante`) REFERENCES `postulante` (`dni`);
 
 --
--- Filtros para la tabla `ranking`
+-- Constraints for table `ranking`
 --
 ALTER TABLE `ranking`
   ADD CONSTRAINT `ranking_ibfk_1` FOREIGN KEY (`id_postulante`) REFERENCES `postulante` (`dni`);
 
 --
--- Filtros para la tabla `resultado_evaluacion`
+-- Constraints for table `resultado_evaluacion`
 --
 ALTER TABLE `resultado_evaluacion`
   ADD CONSTRAINT `resultado_evaluacion_ibfk_1` FOREIGN KEY (`id_evaluacion`) REFERENCES `evaluacion` (`id`),
