@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 08-05-2026 a las 01:42:24
--- Versión del servidor: 10.4.24-MariaDB
--- Versión de PHP: 7.4.29
+-- Host: 127.0.0.1
+-- Generation Time: May 15, 2026 at 05:19 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,18 +18,18 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `safe_db`
+-- Database: `safe_db`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `cv`
+-- Table structure for table `cv`
 --
 
 CREATE TABLE `cv` (
   `ID` int(11) NOT NULL,
-  `Archivo_CV` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Archivo_CV` varchar(255) NOT NULL,
   `Fecha_carga` datetime DEFAULT current_timestamp(),
   `Cumple_requisitos` tinyint(1) DEFAULT 0,
   `ID_postulante` int(11) NOT NULL
@@ -38,87 +38,107 @@ CREATE TABLE `cv` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `evaluacion`
+-- Table structure for table `entrevista`
 --
 
-CREATE TABLE `evaluacion` (
+CREATE TABLE `entrevista` (
   `ID` int(11) NOT NULL,
-  `Tipo` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Duracion` int(11) DEFAULT NULL,
-  `Puntaje_min` decimal(5,2) DEFAULT NULL,
-  `Puntaje_max` decimal(5,2) DEFAULT NULL,
-  `Online` tinyint(1) DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `evaluacion`
---
-
-INSERT INTO `evaluacion` (`ID`, `Tipo`, `Duracion`, `Puntaje_min`, `Puntaje_max`, `Online`) VALUES
-(1, 'Test psicológico', 60, '60.00', '100.00', 1),
-(2, 'Test práctico-teórico', 90, '70.00', '100.00', 1),
-(3, 'Examen final', 120, '75.00', '100.00', 0);
+  `ID_postulante` int(11) NOT NULL,
+  `Fecha` datetime DEFAULT NULL,
+  `Modalidad` varchar(100) DEFAULT NULL,
+  `Estado` varchar(50) DEFAULT 'PENDIENTE',
+  `Observaciones` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `historial`
+-- Table structure for table `evaluacion`
+--
+
+CREATE TABLE `evaluacion` (
+  `ID` int(11) NOT NULL,
+  `Tipo` varchar(100) NOT NULL,
+  `Duracion` int(11) DEFAULT NULL,
+  `Puntaje_min` decimal(5,2) DEFAULT NULL,
+  `Puntaje_max` decimal(5,2) DEFAULT NULL,
+  `Online` tinyint(1) DEFAULT 1,
+  `ID_puesto` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `evaluacion`
+--
+
+INSERT INTO `evaluacion` (`ID`, `Tipo`, `Duracion`, `Puntaje_min`, `Puntaje_max`, `Online`, `ID_puesto`) VALUES
+(1, 'Test psicológico', 60, 60.00, 100.00, 1, NULL),
+(2, 'Test práctico-teórico', 90, 70.00, 100.00, 1, NULL),
+(3, 'Examen final', 120, 75.00, 100.00, 0, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `historial`
 --
 
 CREATE TABLE `historial` (
   `ID` int(11) NOT NULL,
   `Fecha` datetime DEFAULT current_timestamp(),
-  `Accion` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Accion` varchar(255) NOT NULL,
   `ID_postulante` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `notificacion`
+-- Table structure for table `notificacion`
 --
 
 CREATE TABLE `notificacion` (
   `ID` int(11) NOT NULL,
   `ID_postulante` int(11) NOT NULL,
-  `Mensaje` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Mensaje` text NOT NULL,
   `Fecha_envio` datetime DEFAULT current_timestamp(),
-  `Tipo` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL
+  `Tipo` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `postulacion`
+-- Table structure for table `postulacion`
 --
 
 CREATE TABLE `postulacion` (
   `ID_postulante` int(11) NOT NULL,
   `ID_puesto` int(11) NOT NULL,
-  `Fecha_postulacion` datetime DEFAULT current_timestamp()
+  `Fecha_postulacion` datetime DEFAULT current_timestamp(),
+  `Estado` varchar(50) DEFAULT 'PENDIENTE',
+  `Score_IA` decimal(5,2) DEFAULT NULL,
+  `Observaciones_IA` text DEFAULT NULL,
+  `Fecha_actualizacion` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `postulante`
+-- Table structure for table `postulante`
 --
 
 CREATE TABLE `postulante` (
   `ID` int(11) NOT NULL,
-  `Nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Apellido` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Nombre` varchar(100) NOT NULL,
+  `Apellido` varchar(100) NOT NULL,
   `Edad` int(11) NOT NULL,
-  `Telefono` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Estado_Civil` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Correo_Electronico` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Experiencia` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Inf_Medica` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Telefono` varchar(30) DEFAULT NULL,
+  `Estado_Civil` varchar(50) DEFAULT NULL,
+  `Correo_Electronico` varchar(150) NOT NULL,
+  `Experiencia` text DEFAULT NULL,
+  `Inf_Medica` text DEFAULT NULL,
   `Usuario_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `postulante`
+-- Dumping data for table `postulante`
 --
 
 INSERT INTO `postulante` (`ID`, `Nombre`, `Apellido`, `Edad`, `Telefono`, `Estado_Civil`, `Correo_Electronico`, `Experiencia`, `Inf_Medica`, `Usuario_id`) VALUES
@@ -131,20 +151,34 @@ INSERT INTO `postulante` (`ID`, `Nombre`, `Apellido`, `Edad`, `Telefono`, `Estad
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `puesto`
+-- Table structure for table `pregunta`
+--
+
+CREATE TABLE `pregunta` (
+  `ID` int(11) NOT NULL,
+  `ID_evaluacion` int(11) NOT NULL,
+  `Pregunta` text NOT NULL,
+  `Tipo` varchar(50) NOT NULL,
+  `Respuesta_correcta` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `puesto`
 --
 
 CREATE TABLE `puesto` (
   `ID` int(11) NOT NULL,
-  `Nombre_Puesto` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Tipo` enum('adm','op') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Requisitos` text COLLATE utf8mb4_unicode_ci NOT NULL
+  `Nombre_Puesto` varchar(150) NOT NULL,
+  `Tipo` enum('adm','op') NOT NULL,
+  `Requisitos` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ranking`
+-- Table structure for table `ranking`
 --
 
 CREATE TABLE `ranking` (
@@ -155,20 +189,34 @@ CREATE TABLE `ranking` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `ranking`
+-- Dumping data for table `ranking`
 --
 
 INSERT INTO `ranking` (`ID`, `ID_postulante`, `Posicion`, `promedio_final`) VALUES
-(5, 1, 2, '85.50'),
-(6, 2, 1, '92.75'),
-(7, 3, 5, '68.00'),
-(8, 4, 3, '78.25'),
-(9, 5, 4, '71.50');
+(5, 1, 2, 85.50),
+(6, 2, 1, 92.75),
+(7, 3, 5, 68.00),
+(8, 4, 3, 78.25),
+(9, 5, 4, 71.50);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `resultado_evaluacion`
+-- Table structure for table `respuesta_usuario`
+--
+
+CREATE TABLE `respuesta_usuario` (
+  `ID` int(11) NOT NULL,
+  `ID_postulante` int(11) NOT NULL,
+  `ID_pregunta` int(11) NOT NULL,
+  `Respuesta` text NOT NULL,
+  `Correcta` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `resultado_evaluacion`
 --
 
 CREATE TABLE `resultado_evaluacion` (
@@ -183,20 +231,20 @@ CREATE TABLE `resultado_evaluacion` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuario`
+-- Table structure for table `usuario`
 --
 
 CREATE TABLE `usuario` (
   `ID` int(11) NOT NULL,
-  `dni` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `nombre` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Contrasena` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `rol` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `dni` varchar(255) DEFAULT NULL,
+  `nombre` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `Contrasena` varchar(255) NOT NULL,
+  `rol` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `usuario`
+-- Dumping data for table `usuario`
 --
 
 INSERT INTO `usuario` (`ID`, `dni`, `nombre`, `email`, `Contrasena`, `rol`) VALUES
@@ -211,65 +259,88 @@ INSERT INTO `usuario` (`ID`, `dni`, `nombre`, `email`, `Contrasena`, `rol`) VALU
 (11, '4334', 'david', 'david123@gmail.com', '$2a$10$f4GwAp90L8fEtw.RtqTv5eMwSSj2SUKLDP6GHd1AaFAuI6Pkg6/DC', 'postulante');
 
 --
--- Índices para tablas volcadas
+-- Indexes for dumped tables
 --
 
 --
--- Indices de la tabla `cv`
+-- Indexes for table `cv`
 --
 ALTER TABLE `cv`
   ADD PRIMARY KEY (`ID`),
   ADD KEY `ID_postulante` (`ID_postulante`);
 
 --
--- Indices de la tabla `evaluacion`
+-- Indexes for table `entrevista`
 --
-ALTER TABLE `evaluacion`
-  ADD PRIMARY KEY (`ID`);
+ALTER TABLE `entrevista`
+  ADD PRIMARY KEY (`ID`),
+  ADD KEY `ID_postulante` (`ID_postulante`);
 
 --
--- Indices de la tabla `historial`
+-- Indexes for table `evaluacion`
+--
+ALTER TABLE `evaluacion`
+  ADD PRIMARY KEY (`ID`),
+  ADD KEY `fk_evaluacion_puesto` (`ID_puesto`);
+
+--
+-- Indexes for table `historial`
 --
 ALTER TABLE `historial`
   ADD PRIMARY KEY (`ID`),
   ADD KEY `ID_postulante` (`ID_postulante`);
 
 --
--- Indices de la tabla `notificacion`
+-- Indexes for table `notificacion`
 --
 ALTER TABLE `notificacion`
   ADD PRIMARY KEY (`ID`),
   ADD KEY `ID_postulante` (`ID_postulante`);
 
 --
--- Indices de la tabla `postulacion`
+-- Indexes for table `postulacion`
 --
 ALTER TABLE `postulacion`
   ADD PRIMARY KEY (`ID_postulante`,`ID_puesto`),
   ADD KEY `ID_puesto` (`ID_puesto`);
 
 --
--- Indices de la tabla `postulante`
+-- Indexes for table `postulante`
 --
 ALTER TABLE `postulante`
   ADD PRIMARY KEY (`ID`),
   ADD KEY `Usuario_id` (`Usuario_id`);
 
 --
--- Indices de la tabla `puesto`
+-- Indexes for table `pregunta`
+--
+ALTER TABLE `pregunta`
+  ADD PRIMARY KEY (`ID`),
+  ADD KEY `ID_evaluacion` (`ID_evaluacion`);
+
+--
+-- Indexes for table `puesto`
 --
 ALTER TABLE `puesto`
   ADD PRIMARY KEY (`ID`);
 
 --
--- Indices de la tabla `ranking`
+-- Indexes for table `ranking`
 --
 ALTER TABLE `ranking`
   ADD PRIMARY KEY (`ID`),
   ADD UNIQUE KEY `ID_postulante` (`ID_postulante`);
 
 --
--- Indices de la tabla `resultado_evaluacion`
+-- Indexes for table `respuesta_usuario`
+--
+ALTER TABLE `respuesta_usuario`
+  ADD PRIMARY KEY (`ID`),
+  ADD KEY `ID_postulante` (`ID_postulante`),
+  ADD KEY `ID_pregunta` (`ID_pregunta`);
+
+--
+-- Indexes for table `resultado_evaluacion`
 --
 ALTER TABLE `resultado_evaluacion`
   ADD PRIMARY KEY (`ID`),
@@ -277,7 +348,7 @@ ALTER TABLE `resultado_evaluacion`
   ADD KEY `ID_postulante` (`ID_postulante`);
 
 --
--- Indices de la tabla `usuario`
+-- Indexes for table `usuario`
 --
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`ID`),
@@ -285,106 +356,149 @@ ALTER TABLE `usuario`
   ADD UNIQUE KEY `Email` (`email`);
 
 --
--- AUTO_INCREMENT de las tablas volcadas
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT de la tabla `cv`
+-- AUTO_INCREMENT for table `cv`
 --
 ALTER TABLE `cv`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `evaluacion`
+-- AUTO_INCREMENT for table `entrevista`
+--
+ALTER TABLE `entrevista`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `evaluacion`
 --
 ALTER TABLE `evaluacion`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT de la tabla `historial`
+-- AUTO_INCREMENT for table `historial`
 --
 ALTER TABLE `historial`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `notificacion`
+-- AUTO_INCREMENT for table `notificacion`
 --
 ALTER TABLE `notificacion`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `postulante`
+-- AUTO_INCREMENT for table `postulante`
 --
 ALTER TABLE `postulante`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT de la tabla `puesto`
+-- AUTO_INCREMENT for table `pregunta`
+--
+ALTER TABLE `pregunta`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `puesto`
 --
 ALTER TABLE `puesto`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `ranking`
+-- AUTO_INCREMENT for table `ranking`
 --
 ALTER TABLE `ranking`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- AUTO_INCREMENT de la tabla `resultado_evaluacion`
+-- AUTO_INCREMENT for table `respuesta_usuario`
+--
+ALTER TABLE `respuesta_usuario`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `resultado_evaluacion`
 --
 ALTER TABLE `resultado_evaluacion`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `usuario`
+-- AUTO_INCREMENT for table `usuario`
 --
 ALTER TABLE `usuario`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
--- Restricciones para tablas volcadas
+-- Constraints for dumped tables
 --
 
 --
--- Filtros para la tabla `cv`
+-- Constraints for table `cv`
 --
 ALTER TABLE `cv`
   ADD CONSTRAINT `cv_ibfk_1` FOREIGN KEY (`ID_postulante`) REFERENCES `postulante` (`ID`) ON DELETE CASCADE;
 
 --
--- Filtros para la tabla `historial`
+-- Constraints for table `entrevista`
+--
+ALTER TABLE `entrevista`
+  ADD CONSTRAINT `entrevista_ibfk_1` FOREIGN KEY (`ID_postulante`) REFERENCES `postulante` (`ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `evaluacion`
+--
+ALTER TABLE `evaluacion`
+  ADD CONSTRAINT `fk_evaluacion_puesto` FOREIGN KEY (`ID_puesto`) REFERENCES `puesto` (`ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `historial`
 --
 ALTER TABLE `historial`
   ADD CONSTRAINT `historial_ibfk_1` FOREIGN KEY (`ID_postulante`) REFERENCES `postulante` (`ID`) ON DELETE CASCADE;
 
 --
--- Filtros para la tabla `notificacion`
+-- Constraints for table `notificacion`
 --
 ALTER TABLE `notificacion`
   ADD CONSTRAINT `notificacion_ibfk_1` FOREIGN KEY (`ID_postulante`) REFERENCES `postulante` (`ID`) ON DELETE CASCADE;
 
 --
--- Filtros para la tabla `postulacion`
+-- Constraints for table `postulacion`
 --
 ALTER TABLE `postulacion`
   ADD CONSTRAINT `postulacion_ibfk_1` FOREIGN KEY (`ID_postulante`) REFERENCES `postulante` (`ID`) ON DELETE CASCADE,
   ADD CONSTRAINT `postulacion_ibfk_2` FOREIGN KEY (`ID_puesto`) REFERENCES `puesto` (`ID`) ON DELETE CASCADE;
 
 --
--- Filtros para la tabla `postulante`
+-- Constraints for table `postulante`
 --
 ALTER TABLE `postulante`
   ADD CONSTRAINT `postulante_ibfk_1` FOREIGN KEY (`Usuario_id`) REFERENCES `usuario` (`ID`) ON DELETE SET NULL;
 
 --
--- Filtros para la tabla `ranking`
+-- Constraints for table `pregunta`
+--
+ALTER TABLE `pregunta`
+  ADD CONSTRAINT `pregunta_ibfk_1` FOREIGN KEY (`ID_evaluacion`) REFERENCES `evaluacion` (`ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `ranking`
 --
 ALTER TABLE `ranking`
   ADD CONSTRAINT `ranking_ibfk_1` FOREIGN KEY (`ID_postulante`) REFERENCES `postulante` (`ID`) ON DELETE CASCADE;
 
 --
--- Filtros para la tabla `resultado_evaluacion`
+-- Constraints for table `respuesta_usuario`
+--
+ALTER TABLE `respuesta_usuario`
+  ADD CONSTRAINT `respuesta_usuario_ibfk_1` FOREIGN KEY (`ID_postulante`) REFERENCES `postulante` (`ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `respuesta_usuario_ibfk_2` FOREIGN KEY (`ID_pregunta`) REFERENCES `pregunta` (`ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `resultado_evaluacion`
 --
 ALTER TABLE `resultado_evaluacion`
   ADD CONSTRAINT `resultado_evaluacion_ibfk_1` FOREIGN KEY (`ID_evaluacion`) REFERENCES `evaluacion` (`ID`) ON DELETE CASCADE,
