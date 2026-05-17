@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 15, 2026 at 05:19 AM
+-- Generation Time: May 17, 2026 at 05:01 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,7 +31,6 @@ CREATE TABLE `cv` (
   `ID` int(11) NOT NULL,
   `Archivo_CV` varchar(255) NOT NULL,
   `Fecha_carga` datetime DEFAULT current_timestamp(),
-  `Cumple_requisitos` tinyint(1) DEFAULT 0,
   `ID_postulante` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -126,27 +125,37 @@ CREATE TABLE `postulacion` (
 
 CREATE TABLE `postulante` (
   `ID` int(11) NOT NULL,
-  `Nombre` varchar(100) NOT NULL,
-  `Apellido` varchar(100) NOT NULL,
-  `Edad` int(11) NOT NULL,
-  `Telefono` varchar(30) DEFAULT NULL,
-  `Estado_Civil` varchar(50) DEFAULT NULL,
-  `Correo_Electronico` varchar(150) NOT NULL,
-  `Experiencia` text DEFAULT NULL,
+  `nombre` varchar(255) DEFAULT NULL,
+  `apellido` varchar(255) DEFAULT NULL,
+  `telefono` varchar(255) DEFAULT NULL,
+  `estado_civil` varchar(255) DEFAULT NULL,
+  `experiencia` varchar(255) DEFAULT NULL,
   `Inf_Medica` text DEFAULT NULL,
-  `Usuario_id` int(11) DEFAULT NULL
+  `Usuario_id` int(11) DEFAULT NULL,
+  `cv_url` varchar(255) DEFAULT NULL,
+  `direccion` varchar(255) DEFAULT NULL,
+  `dni` varchar(255) DEFAULT NULL,
+  `estado` varchar(255) DEFAULT NULL,
+  `estudios` varchar(2000) DEFAULT NULL,
+  `fecha_postulacion` datetime(6) DEFAULT NULL,
+  `apto_medico_url` varchar(255) DEFAULT NULL,
+  `experiencia_laboral` varchar(2000) DEFAULT NULL,
+  `fecha_nacimiento` varchar(255) DEFAULT NULL,
+  `info_medica` varchar(2000) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `postulante`
 --
 
-INSERT INTO `postulante` (`ID`, `Nombre`, `Apellido`, `Edad`, `Telefono`, `Estado_Civil`, `Correo_Electronico`, `Experiencia`, `Inf_Medica`, `Usuario_id`) VALUES
-(1, 'Juan', 'Pérez', 28, '555-0101', 'Soltero', 'juan@test.com', '2 años en desarrollo', NULL, NULL),
-(2, 'María', 'García', 32, '555-0102', 'Casada', 'maria@test.com', '5 años en gestión', NULL, NULL),
-(3, 'Carlos', 'López', 25, '555-0103', 'Soltero', 'carlos@test.com', '1 año en soporte', NULL, NULL),
-(4, 'Ana', 'Martínez', 30, '555-0104', 'Soltera', 'ana@test.com', '4 años en análisis', NULL, NULL),
-(5, 'Luis', 'Rodríguez', 27, '555-0105', 'Soltero', 'luis@test.com', '3 años en testing', NULL, NULL);
+INSERT INTO `postulante` (`ID`, `nombre`, `apellido`, `telefono`, `estado_civil`, `experiencia`, `Inf_Medica`, `Usuario_id`, `cv_url`, `direccion`, `dni`, `estado`, `estudios`, `fecha_postulacion`, `apto_medico_url`, `experiencia_laboral`, `fecha_nacimiento`, `info_medica`) VALUES
+(1, 'Juan', 'Pérez', '555-0101', 'Soltero', '2 años en desarrollo', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 'María', 'García', '555-0102', 'Casada', '5 años en gestión', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(3, 'Carlos', 'López', '555-0103', 'Soltero', '1 año en soporte', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(4, 'Ana', 'Martínez', '555-0104', 'Soltera', '4 años en análisis', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5, 'Luis', 'Rodríguez', '555-0105', 'Soltero', '3 años en testing', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(6, NULL, NULL, '1122334455', 'Soltero', NULL, NULL, 12, 'https://cv.com/archivo.pdf', 'Av Siempre Viva 742', NULL, NULL, 'Secundario completo', NULL, 'https://medico.com/apto.pdf', '2 años en seguridad privada', '2002-05-10', 'Apto físico'),
+(7, NULL, NULL, '1122334455', 'Soltero', NULL, NULL, 12, 'https://cv.com/archivo.pdf', 'Av Siempre Viva 742', NULL, NULL, 'Secundario completo', NULL, 'https://medico.com/apto.pdf', '2 años en seguridad privada', '2002-05-10', 'Apto físico');
 
 -- --------------------------------------------------------
 
@@ -256,7 +265,8 @@ INSERT INTO `usuario` (`ID`, `dni`, `nombre`, `email`, `Contrasena`, `rol`) VALU
 (8, '1234', 'santy', 'santyy32@limail.com', '$2a$10$LaNQEQkwIZfL4/Yd/qr2JeXibKRq.ueFg2tbUc4VmPKh.6oqsEV/S', 'postulante'),
 (9, '471723', 'david', 'vigo1221@gmail.com', '$2a$10$mX/rTVGzfv33HzvRreZaH.ZPXPLioE5ib9eR60mIUHGz1AxBOADJC', 'postulante'),
 (10, '472712', 'chann', 'chan123@gmail.com', '$2a$10$2afB91V35p4.oB7DqMexVepkglRrcgWzPxgCBPthZUJYPE5E9Y2li', 'postulante'),
-(11, '4334', 'david', 'david123@gmail.com', '$2a$10$f4GwAp90L8fEtw.RtqTv5eMwSSj2SUKLDP6GHd1AaFAuI6Pkg6/DC', 'postulante');
+(11, '4334', 'david', 'david123@gmail.com', '$2a$10$f4GwAp90L8fEtw.RtqTv5eMwSSj2SUKLDP6GHd1AaFAuI6Pkg6/DC', 'postulante'),
+(12, '12345678', 'Santiago', 'test@gmail.com', '$2a$10$9kciNePPlmXnxGLiAbLH4upHJF.UoHPrGvZZKnaw6IiZBBpgA49Zi', 'postulante');
 
 --
 -- Indexes for dumped tables
@@ -393,7 +403,7 @@ ALTER TABLE `notificacion`
 -- AUTO_INCREMENT for table `postulante`
 --
 ALTER TABLE `postulante`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `pregunta`
@@ -429,7 +439,7 @@ ALTER TABLE `resultado_evaluacion`
 -- AUTO_INCREMENT for table `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Constraints for dumped tables
