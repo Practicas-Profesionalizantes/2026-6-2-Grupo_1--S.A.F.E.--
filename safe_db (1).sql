@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 17, 2026 at 05:01 AM
+-- Generation Time: Jun 02, 2026 at 05:28 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -180,9 +180,16 @@ CREATE TABLE `pregunta` (
 CREATE TABLE `puesto` (
   `ID` int(11) NOT NULL,
   `Nombre_Puesto` varchar(150) NOT NULL,
-  `Tipo` enum('adm','op') NOT NULL,
-  `Requisitos` text NOT NULL
+  `tipo` varchar(100) NOT NULL,
+  `requisitos` varchar(2000) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `puesto`
+--
+
+INSERT INTO `puesto` (`ID`, `Nombre_Puesto`, `tipo`, `requisitos`) VALUES
+(1, 'Backend Java Jr', 'Tiempo completo', 'Java, Spring Boot, SQL, Git, Python');
 
 -- --------------------------------------------------------
 
@@ -266,7 +273,8 @@ INSERT INTO `usuario` (`ID`, `dni`, `nombre`, `email`, `Contrasena`, `rol`) VALU
 (9, '471723', 'david', 'vigo1221@gmail.com', '$2a$10$mX/rTVGzfv33HzvRreZaH.ZPXPLioE5ib9eR60mIUHGz1AxBOADJC', 'postulante'),
 (10, '472712', 'chann', 'chan123@gmail.com', '$2a$10$2afB91V35p4.oB7DqMexVepkglRrcgWzPxgCBPthZUJYPE5E9Y2li', 'postulante'),
 (11, '4334', 'david', 'david123@gmail.com', '$2a$10$f4GwAp90L8fEtw.RtqTv5eMwSSj2SUKLDP6GHd1AaFAuI6Pkg6/DC', 'postulante'),
-(12, '12345678', 'Santiago', 'test@gmail.com', '$2a$10$9kciNePPlmXnxGLiAbLH4upHJF.UoHPrGvZZKnaw6IiZBBpgA49Zi', 'postulante');
+(12, '12345678', 'Santiago', 'test@gmail.com', '$2a$10$9kciNePPlmXnxGLiAbLH4upHJF.UoHPrGvZZKnaw6IiZBBpgA49Zi', 'postulante'),
+(14, '113029', 'santy', 'admin123@gmail.com', '$2a$10$VUhEJfPgPKhqAs2don8qI.QZ3DGXffk5yfSfyT/sCxn0B.HqU5DUq', 'admin');
 
 --
 -- Indexes for dumped tables
@@ -415,7 +423,7 @@ ALTER TABLE `pregunta`
 -- AUTO_INCREMENT for table `puesto`
 --
 ALTER TABLE `puesto`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `ranking`
@@ -439,7 +447,7 @@ ALTER TABLE `resultado_evaluacion`
 -- AUTO_INCREMENT for table `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- Constraints for dumped tables
