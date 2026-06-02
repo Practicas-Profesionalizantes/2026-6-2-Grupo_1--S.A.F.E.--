@@ -1,5 +1,7 @@
 package com.safe.dto;
 
+import com.safe.model.PostulanteModel;
+
 public class PostulanteResponseDTO {
 
     private Long id;
@@ -18,6 +20,25 @@ public class PostulanteResponseDTO {
     private String nombre;
     private String email;
     private String dni;
+
+    public PostulanteResponseDTO(PostulanteModel postulante) {
+        this.id = postulante.getId();
+        this.telefono = postulante.getTelefono();
+        this.direccion = postulante.getDireccion();
+        this.fechaNacimiento = postulante.getFechaNacimiento();
+        this.estadoCivil = postulante.getEstadoCivil();
+        this.experienciaLaboral = postulante.getExperienciaLaboral();
+        this.estudios = postulante.getEstudios();
+        this.infoMedica = postulante.getInfoMedica();
+        this.cvUrl = postulante.getCvUrl();
+        this.aptoMedicoUrl = postulante.getAptoMedicoUrl();
+
+        if (postulante.getUsuario() != null) {
+            this.nombre = postulante.getUsuario().getNombre();
+            this.email = postulante.getUsuario().getEmail();
+            this.dni = postulante.getUsuario().getDni();
+        }
+    }
 
     // getters y setters
 

@@ -2,6 +2,8 @@ package com.safe.controller;
 
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +28,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/register")
-    public Object register(@RequestBody RegisterDTO data) {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterDTO data) {
         try {
             UsuarioModel user = service.register(
                     data.getDni(),
@@ -35,19 +37,25 @@ public class UsuarioController {
                     data.getPassword()
             );
 
-            user.setContrasena(null);
+            UsuarioResponseDTO dto = new UsuarioResponseDTO(
+                    user.getId(),
+                    user.getDni(),
+                    user.getNombre(),
+                    user.getEmail(),
+                    user.getRol()
+            );
 
-            return Map.of(
+            return new ResponseEntity<>(Map.of(
                     "status", "ok",
                     "message", "Usuario registrado",
-                    "data", user
-            );
+                    "data", dto
+            ), HttpStatus.CREATED);
 
         } catch (Exception e) {
-            return Map.of(
+            return new ResponseEntity<>(Map.of(
                     "status", "error",
                     "message", e.getMessage()
-            );
+            ), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -57,38 +65,37 @@ public class UsuarioController {
     }
 
     @PostMapping("/logout")
-    public Object logout() {
-        return Map.of(
-            "status", "ok",
-            "message", "Logout exitoso (el cliente debe borrar el token)"
-        );
+    public ResponseEntity<Map<String, Object>> logout() {
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "message", "Logout exitoso (el cliente debe borrar el token)"
+        ));
     }
 
     @GetMapping("/me")
-    public Object me() {
-        
+    public ResponseEntity<Map<String, Object>> me() {
         String email = (String) SecurityContextHolder
-            .getContext()
-            .getAuthentication()
-            .getPrincipal();
-            
-            UsuarioModel user = service.findByEmail(email);
-            UsuarioResponseDTO dto = new UsuarioResponseDTO(
-            user.getId(),
-            user.getDni(),
-            user.getNombre(),
-            user.getEmail(),
-            user.getRol()
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        UsuarioModel user = service.findByEmail(email);
+        UsuarioResponseDTO dto = new UsuarioResponseDTO(
+                user.getId(),
+                user.getDni(),
+                user.getNombre(),
+                user.getEmail(),
+                user.getRol()
         );
 
-        return Map.of(
-            "status", "ok",
-            "user", dto
-        );
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "user", dto
+        ));
     }
 
     @GetMapping("/test")
     public String test() {
-        return "FUNCIONA 🔥";
+        return "FUNCIONA";
     }
 }
