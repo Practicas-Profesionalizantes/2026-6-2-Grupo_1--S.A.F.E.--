@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 02, 2026 at 05:28 AM
+-- Generation Time: Jun 14, 2026 at 04:13 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -33,6 +33,20 @@ CREATE TABLE `cv` (
   `Fecha_carga` datetime DEFAULT current_timestamp(),
   `ID_postulante` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `detalle_resultado`
+--
+
+CREATE TABLE `detalle_resultado` (
+  `ID` int(11) NOT NULL,
+  `ID_resultado` int(11) NOT NULL,
+  `ID_pregunta` int(11) NOT NULL,
+  `Puntaje` decimal(5,2) DEFAULT NULL,
+  `Justificacion_IA` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -168,7 +182,8 @@ CREATE TABLE `pregunta` (
   `ID_evaluacion` int(11) NOT NULL,
   `Pregunta` text NOT NULL,
   `Tipo` varchar(50) NOT NULL,
-  `Respuesta_correcta` text DEFAULT NULL
+  `Respuesta_correcta` text DEFAULT NULL,
+  `Peso` int(11) DEFAULT 10
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -226,7 +241,8 @@ CREATE TABLE `respuesta_usuario` (
   `ID_postulante` int(11) NOT NULL,
   `ID_pregunta` int(11) NOT NULL,
   `Respuesta` text NOT NULL,
-  `Correcta` tinyint(1) DEFAULT 0
+  `Puntaje_IA` decimal(5,2) DEFAULT NULL,
+  `Observacion_IA` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -286,6 +302,14 @@ INSERT INTO `usuario` (`ID`, `dni`, `nombre`, `email`, `Contrasena`, `rol`) VALU
 ALTER TABLE `cv`
   ADD PRIMARY KEY (`ID`),
   ADD KEY `ID_postulante` (`ID_postulante`);
+
+--
+-- Indexes for table `detalle_resultado`
+--
+ALTER TABLE `detalle_resultado`
+  ADD PRIMARY KEY (`ID`),
+  ADD KEY `ID_resultado` (`ID_resultado`),
+  ADD KEY `ID_pregunta` (`ID_pregunta`);
 
 --
 -- Indexes for table `entrevista`
@@ -384,6 +408,12 @@ ALTER TABLE `cv`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `detalle_resultado`
+--
+ALTER TABLE `detalle_resultado`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `entrevista`
 --
 ALTER TABLE `entrevista`
@@ -458,6 +488,13 @@ ALTER TABLE `usuario`
 --
 ALTER TABLE `cv`
   ADD CONSTRAINT `cv_ibfk_1` FOREIGN KEY (`ID_postulante`) REFERENCES `postulante` (`ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `detalle_resultado`
+--
+ALTER TABLE `detalle_resultado`
+  ADD CONSTRAINT `detalle_resultado_ibfk_1` FOREIGN KEY (`ID_resultado`) REFERENCES `resultado_evaluacion` (`ID`),
+  ADD CONSTRAINT `detalle_resultado_ibfk_2` FOREIGN KEY (`ID_pregunta`) REFERENCES `pregunta` (`ID`);
 
 --
 -- Constraints for table `entrevista`
