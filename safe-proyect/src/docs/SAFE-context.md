@@ -1,85 +1,101 @@
- SAFE — Sistema Inteligente de Reclutamiento y Selección
-Objetivo del sistema
-SAFE es una plataforma de reclutamiento inteligente que permite automatizar gran parte del proceso de selección de personal mediante el uso de:
-gestión de postulantes,
-automatización con n8n,
-análisis de CV con IA,
-evaluaciones automáticas,
-y paneles para Recursos Humanos.
+SAFE — Sistema Inteligente de Reclutamiento y Selección
+Objetivo del Sistema
+SAFE es una plataforma de reclutamiento inteligente diseñada para optimizar y automatizar gran parte del proceso de selección de personal mediante:
+Gestión centralizada de postulantes.
+Automatización de procesos con n8n.
+Análisis de CV mediante Inteligencia Artificial.
+Evaluaciones automáticas y corrección inteligente.
+Ranking de candidatos.
+Paneles administrativos para Recursos Humanos.
+Seguimiento completo del proceso de selección.
+El objetivo principal es reducir tiempos de contratación, mejorar la calidad de los candidatos seleccionados y brindar herramientas de apoyo para la toma de decisiones de RRHH.
 
-Flujo general del sistema
-1. Inicio de sesión / Registro
-Al ingresar al sistema, el usuario puede:
-iniciar sesión,
-o crear una cuenta nueva.
+Flujo General del Sistema
+1. Inicio de Sesión y Registro
+Al ingresar al sistema, el usuario podrá:
+Iniciar sesión.
+Crear una cuenta nueva.
 
-Registro del postulante
-El registro se realiza en 3 pasos.
-Paso 1 — Crear cuenta
-El usuario ingresa:
-nombre,
-apellido,
-DNI,
-email,
-contraseña.
-Se crea su cuenta dentro del sistema.
+Registro del Postulante
+El registro se realizará en tres etapas.
+Paso 1 — Creación de Cuenta
+El usuario deberá ingresar:
+Nombre
+Apellido
+DNI
+Email
+Contraseña
+El sistema creará una cuenta de acceso única.
 
-Paso 2 — Datos personales
-El postulante completa su perfil laboral:
-teléfono,
-dirección,
-experiencia,
-estudios,
-habilidades,
-disponibilidad,
-LinkedIn,
-etc.
-También sube su CV en formato PDF.
-El CV queda guardado en el perfil y podrá utilizarse para futuras postulaciones sin necesidad de volver a subirlo.
+Paso 2 — Perfil Profesional
+Una vez creada la cuenta, el postulante deberá completar su perfil laboral:
+Información personal
+Teléfono
+Dirección
+Fecha de nacimiento
+Estado civil
+Formación académica
+Estudios realizados
+Cursos
+Certificaciones
+Información laboral
+Experiencia laboral
+Habilidades
+Disponibilidad horaria
+LinkedIn
+Documentación
+CV en formato PDF
+Apto médico (opcional)
+Certificaciones adicionales
+Toda esta información quedará almacenada para futuras postulaciones.
 
 Paso 3 — Confirmación
-El usuario revisa toda la información ingresada y confirma sus datos.
-Luego es redirigido al dashboard principal.
+El postulante revisará toda la información cargada y confirmará los datos.
+Posteriormente será redirigido al Dashboard Principal.
 
-Dashboard del postulante
-Dentro del dashboard el usuario puede:
-ver puestos disponibles,
-consultar sus postulaciones,
-revisar estados de selección,
-realizar evaluaciones asignadas.
+Dashboard del Postulante
+Desde el dashboard el usuario podrá:
+Ver puestos disponibles.
+Consultar sus postulaciones.
+Ver el estado de cada proceso.
+Acceder a evaluaciones asignadas.
+Consultar resultados obtenidos.
+Actualizar su perfil profesional.
 
-Postulación a puestos
-Cada puesto tendrá un botón:
-“Postularme”.
-Cuando el usuario se postula:
-el sistema toma automáticamente:
-sus datos personales,
-su CV,
-su perfil,
-y genera la postulación.
+Postulación a Puestos
+Cada oferta laboral dispondrá del botón:
+Postularme
+Al postularse, SAFE utilizará automáticamente:
+Datos personales.
+Perfil profesional.
+CV cargado.
+Historial del postulante.
+Y generará una nueva postulación.
 
-Análisis automático con IA
-Al generarse una nueva postulación:
-Spring Boot envía la información a n8n mediante un webhook.
-n8n ejecuta un flujo automatizado donde:
-obtiene los datos del postulante,
-analiza el CV,
-compara habilidades y experiencia con los requisitos del puesto,
-genera un score de compatibilidad.
-Ejemplo:
+Análisis Automático de CV con IA
+Una vez generada una postulación:
+Spring Boot enviará la información a n8n mediante un webhook.
+n8n ejecutará un flujo automatizado que:
+Obtendrá los datos del postulante.
+Analizará el CV.
+Comparará habilidades y experiencia con los requisitos del puesto.
+Calculará un score de compatibilidad.
+Ejemplo
+Requisitos:
 Java ✔
-Spring ✔
+Spring Boot ✔
 SQL ✔
 Docker ✖
-Score IA:
-85%
-La IA también genera observaciones explicando:
-fortalezas,
-faltantes,
-y nivel de compatibilidad.
+Resultado:
+Score IA: 85%
+La IA también generará observaciones:
+Fortalezas.
+Habilidades detectadas.
+Requisitos faltantes.
+Nivel de compatibilidad.
 
 Panel de Recursos Humanos
-RRHH tendrá un panel administrativo donde podrá visualizar:
+RRHH contará con un panel administrativo donde podrá visualizar:
 Postulante
 Puesto
 Score IA
@@ -89,39 +105,83 @@ Backend Java Jr
 85%
 Pendiente
 
-Al seleccionar un postulante podrá ver:
-datos personales,
-CV,
-análisis IA,
-observaciones,
-historial,
-evaluaciones realizadas.
 
-Decisión de RRHH
-RRHH tendrá botones de acción:
+Detalle del Postulante
+Al seleccionar un postulante, RRHH podrá visualizar:
+Datos personales.
+Perfil profesional.
+CV.
+Historial de postulaciones.
+Resultados de evaluaciones.
+Análisis generado por IA.
+Observaciones.
+Ranking obtenido.
+
+Decisión Inicial de RRHH
+RRHH podrá seleccionar:
 Cumple
-No cumple
-Si el postulante NO cumple
-El sistema:
-actualiza el estado,
-y n8n envía automáticamente un email notificando que no avanzará en el proceso.
+o
+No Cumple
 
-Si el postulante SÍ cumple
-El sistema:
-cambia el estado a “Siguiente etapa”,
-envía un email automático,
-y habilita las evaluaciones correspondientes.
+Si NO cumple
+SAFE:
+Actualiza el estado.
+Envía la información a n8n.
+n8n envía automáticamente un correo electrónico informando que el candidato no continuará en el proceso.
 
-Sistema de evaluaciones
-Los administradores o RRHH podrán cargar evaluaciones:
-técnicas,
-psicotécnicas,
-lógica,
-inglés,
-etc.
-Cuando un postulante es aprobado:
-en su dashboard aparece una nueva sección:
-“Evaluaciones”.
+Si cumple
+SAFE:
+Actualiza el estado a:
+Siguiente Etapa
+Envía un correo automático.
+Habilita las evaluaciones correspondientes.
+
+Sistema de Evaluaciones
+SAFE incorporará un módulo completo de evaluaciones.
+Las evaluaciones podrán ser:
+Técnicas.
+Psicotécnicas.
+Lógica.
+Inglés.
+Personalizadas.
+
+Gestión de Evaluaciones (RRHH)
+RRHH podrá administrar evaluaciones mediante un CRUD completo.
+Funciones
+Crear evaluación.
+Editar evaluación.
+Eliminar evaluación.
+Listar evaluaciones.
+Cada evaluación tendrá:
+Nombre.
+Descripción.
+Duración.
+Puntaje mínimo.
+Estado.
+
+Gestión de Preguntas
+Cada evaluación podrá contener múltiples preguntas.
+RRHH podrá:
+Crear preguntas.
+Editar preguntas.
+Eliminar preguntas.
+Visualizar preguntas asociadas.
+Cada pregunta almacenará:
+Enunciado.
+Respuesta correcta o respuesta esperada.
+Peso de la pregunta.
+Ejemplo:
+Pregunta:
+¿Qué haría ante una situación de incendio?
+Respuesta correcta:
+Activar el protocolo de emergencia y evacuar siguiendo las normas de seguridad.
+Peso:
+10 puntos
+
+Realización de Evaluaciones
+Cuando un postulante avance a la etapa de evaluación:
+En su dashboard aparecerá una nueva sección:
+Evaluaciones Pendientes
 Ejemplo:
 Evaluación
 Estado
@@ -131,63 +191,127 @@ Test Inglés
 Pendiente
 
 
-Corrección automática con IA
-Una vez realizada la evaluación:
-n8n recibe las respuestas,
-la IA corrige automáticamente,
-calcula puntajes,
-y genera observaciones.
-Resultados:
+Corrección Inteligente mediante IA
+Una vez finalizada la evaluación:
+SAFE enviará las respuestas a n8n.
+n8n utilizará IA para comparar:
+Pregunta.
+Respuesta correcta definida por RRHH.
+Respuesta del postulante.
+
+Funcionamiento de la Corrección
+La IA NO tomará decisiones de contratación.
+La IA únicamente:
+Analizará similitud semántica.
+Asignará puntajes.
+Generará observaciones.
+Ayudará a RRHH en la evaluación.
+
+Ejemplo
+Respuesta Correcta:
+Activar el protocolo de emergencia y evacuar.
+Respuesta Postulante:
+Avisar inmediatamente la emergencia y seguir el protocolo de evacuación.
+Resultado IA:
+Puntaje: 90
+Justificación:
+La respuesta coincide con las acciones esperadas y demuestra comprensión del procedimiento.
+
+Cálculo de Resultados
+SAFE calculará automáticamente:
+Puntaje por pregunta.
+Puntaje ponderado según el peso.
+Puntaje total.
+Estado final.
+Resultado:
 Aprobado
+o
 Desaprobado
 
-Panel de resultados para RRHH
-RRHH verá una tabla con los resultados:
+Ranking de Postulantes
+SAFE generará automáticamente un ranking de candidatos basado en:
+Resultados de evaluaciones.
+Puntaje total.
+Compatibilidad con el puesto.
+Ejemplo:
+Posición
 Postulante
-Evaluación
 Puntaje
-Resultado
+1
 Juan Pérez
-Java
-85%
-Aprobado
+95
+2
+María López
+89
+3
+Pedro Gómez
+84
 
-Opciones:
-Invitar entrevista
-Rechazar
 
-Automatización de desaprobados
+Visualización de Resultados para RRHH
+Al seleccionar un postulante RRHH podrá ver:
+CV.
+Perfil.
+Evaluaciones realizadas.
+Respuestas enviadas.
+Respuestas correctas.
+Puntajes por pregunta.
+Justificaciones generadas por IA.
+Resultado final.
+
+Automatización de Desaprobados
 Si el postulante no alcanza el puntaje mínimo:
-n8n puede rechazar automáticamente,
-y enviar un email notificando el resultado.
+SAFE podrá:
+Marcarlo como desaprobado.
+Informar a n8n.
+Enviar automáticamente un correo electrónico notificando el resultado.
 
 Entrevistas
-Los postulantes aprobados podrán avanzar a:
-entrevista RRHH,
-entrevista técnica,
-contratación.
-RRHH decide manualmente quién continúa.
+Los candidatos aprobados podrán avanzar a:
+Entrevista RRHH.
+Entrevista técnica.
+Contratación.
+La decisión final siempre será tomada por RRHH.
 
-Tecnologías del proyecto
+Rol de la Inteligencia Artificial
+La IA actuará como asistente del proceso de selección.
+Su función será:
+Analizar CV.
+Calcular compatibilidad.
+Corregir evaluaciones.
+Generar observaciones.
+Ayudar en la generación de rankings.
+La IA nunca decidirá quién será contratado.
+La decisión final será responsabilidad exclusiva de RRHH.
+
+Tecnologías del Proyecto
 Frontend
-React / Next.js
+React
+Next.js
+TypeScript
+Tailwind CSS
 Backend
 Spring Boot
 Java
 JWT Authentication
-Base de datos
+REST API
+Base de Datos
 MySQL
 Automatización
 n8n
 Inteligencia Artificial
-análisis de CV,
-scoring,
-corrección de evaluaciones,
-recomendaciones automáticas.
+Análisis de CV.
+Scoring de compatibilidad.
+Corrección de evaluaciones.
+Generación de observaciones.
+Asistencia en ranking de candidatos.
 
-Objetivo final
-SAFE busca optimizar el proceso de reclutamiento:
-automatizando tareas repetitivas,
-reduciendo tiempos de selección,
-mejorando el filtrado de candidatos,
-y ayudando a RRHH mediante herramientas inteligentes de análisis y evaluación.
+Objetivo Final
+SAFE busca transformar el proceso tradicional de reclutamiento mediante la automatización inteligente, permitiendo:
+Reducir tiempos de selección.
+Mejorar el filtrado de candidatos.
+Automatizar tareas repetitivas.
+Optimizar evaluaciones.
+Generar información útil para RRHH.
+Mantener siempre la decisión final en manos de las personas.
+Con esto SAFE se posiciona como una plataforma integral de reclutamiento y selección asistida por Inteligencia Artificial y automatización.
