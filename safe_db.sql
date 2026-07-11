@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 14, 2026 at 04:13 AM
+-- Generation Time: Jul 11, 2026 at 05:04 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -87,6 +87,24 @@ INSERT INTO `evaluacion` (`ID`, `Tipo`, `Duracion`, `Puntaje_min`, `Puntaje_max`
 (1, 'Test psicológico', 60, 60.00, 100.00, 1, NULL),
 (2, 'Test práctico-teórico', 90, 70.00, 100.00, 1, NULL),
 (3, 'Examen final', 120, 75.00, 100.00, 0, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `evaluacion_asignada`
+--
+
+CREATE TABLE `evaluacion_asignada` (
+  `id` int(11) NOT NULL,
+  `id_evaluacion` int(11) NOT NULL,
+  `id_postulante` int(11) NOT NULL,
+  `fecha` date NOT NULL,
+  `hora_inicio` time NOT NULL,
+  `hora_fin` time NOT NULL,
+  `estado` enum('PENDIENTE','DISPONIBLE','EN_CURSO','FINALIZADA','VENCIDA') DEFAULT 'PENDIENTE',
+  `intento` int(11) DEFAULT 1,
+  `fecha_asignacion` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -326,6 +344,14 @@ ALTER TABLE `evaluacion`
   ADD KEY `fk_evaluacion_puesto` (`ID_puesto`);
 
 --
+-- Indexes for table `evaluacion_asignada`
+--
+ALTER TABLE `evaluacion_asignada`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_eval_asignada_evaluacion` (`id_evaluacion`),
+  ADD KEY `fk_eval_asignada_postulante` (`id_postulante`);
+
+--
 -- Indexes for table `historial`
 --
 ALTER TABLE `historial`
@@ -426,6 +452,12 @@ ALTER TABLE `evaluacion`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `evaluacion_asignada`
+--
+ALTER TABLE `evaluacion_asignada`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `historial`
 --
 ALTER TABLE `historial`
@@ -507,6 +539,13 @@ ALTER TABLE `entrevista`
 --
 ALTER TABLE `evaluacion`
   ADD CONSTRAINT `fk_evaluacion_puesto` FOREIGN KEY (`ID_puesto`) REFERENCES `puesto` (`ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `evaluacion_asignada`
+--
+ALTER TABLE `evaluacion_asignada`
+  ADD CONSTRAINT `fk_eval_asignada_evaluacion` FOREIGN KEY (`id_evaluacion`) REFERENCES `evaluacion` (`ID`),
+  ADD CONSTRAINT `fk_eval_asignada_postulante` FOREIGN KEY (`id_postulante`) REFERENCES `postulante` (`ID`);
 
 --
 -- Constraints for table `historial`
