@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 11, 2026 at 05:04 AM
+-- Generation Time: Jul 13, 2026 at 08:17 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -76,17 +76,22 @@ CREATE TABLE `evaluacion` (
   `Puntaje_min` decimal(5,2) DEFAULT NULL,
   `Puntaje_max` decimal(5,2) DEFAULT NULL,
   `Online` tinyint(1) DEFAULT 1,
-  `ID_puesto` int(11) DEFAULT NULL
+  `ID_puesto` int(11) DEFAULT NULL,
+  `descripcion` varchar(2000) DEFAULT NULL,
+  `estado` varchar(50) DEFAULT NULL,
+  `nombre` varchar(150) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `evaluacion`
 --
 
-INSERT INTO `evaluacion` (`ID`, `Tipo`, `Duracion`, `Puntaje_min`, `Puntaje_max`, `Online`, `ID_puesto`) VALUES
-(1, 'Test psicológico', 60, 60.00, 100.00, 1, NULL),
-(2, 'Test práctico-teórico', 90, 70.00, 100.00, 1, NULL),
-(3, 'Examen final', 120, 75.00, 100.00, 0, NULL);
+INSERT INTO `evaluacion` (`ID`, `Tipo`, `Duracion`, `Puntaje_min`, `Puntaje_max`, `Online`, `ID_puesto`, `descripcion`, `estado`, `nombre`) VALUES
+(1, 'Test psicológico', 60, 60.00, 100.00, 1, NULL, NULL, NULL, NULL),
+(2, 'Test práctico-teórico', 90, 70.00, 100.00, 1, NULL, NULL, NULL, NULL),
+(3, 'Examen final', 120, 75.00, 100.00, 0, NULL, NULL, NULL, NULL),
+(4, 'TECNICA', 60, 60.00, 100.00, 1, 1, 'Prueba inicial para backend Java', 'ACTIVA', 'Evaluacion tecnica Java'),
+(5, 'TECNICA', 60, 60.00, 100.00, 1, 1, 'Prueba inicial para backend', 'ACTIVA', 'Evaluacion tecnica C++');
 
 -- --------------------------------------------------------
 
@@ -95,16 +100,25 @@ INSERT INTO `evaluacion` (`ID`, `Tipo`, `Duracion`, `Puntaje_min`, `Puntaje_max`
 --
 
 CREATE TABLE `evaluacion_asignada` (
-  `id` int(11) NOT NULL,
+  `id` bigint(20) NOT NULL,
   `id_evaluacion` int(11) NOT NULL,
   `id_postulante` int(11) NOT NULL,
   `fecha` date NOT NULL,
   `hora_inicio` time NOT NULL,
   `hora_fin` time NOT NULL,
-  `estado` enum('PENDIENTE','DISPONIBLE','EN_CURSO','FINALIZADA','VENCIDA') DEFAULT 'PENDIENTE',
+  `estado` varchar(50) NOT NULL,
   `intento` int(11) DEFAULT 1,
-  `fecha_asignacion` timestamp NOT NULL DEFAULT current_timestamp()
+  `fecha_asignacion` timestamp NOT NULL DEFAULT current_timestamp(),
+  `observaciones` varchar(1000) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `evaluacion_asignada`
+--
+
+INSERT INTO `evaluacion_asignada` (`id`, `id_evaluacion`, `id_postulante`, `fecha`, `hora_inicio`, `hora_fin`, `estado`, `intento`, `fecha_asignacion`, `observaciones`) VALUES
+(1, 4, 7, '2026-07-15', '09:00:00', '10:00:00', 'PENDIENTE', 1, '2026-07-13 05:44:01', 'Evaluación técnica inicial para el puesto Backend Java Jr.'),
+(2, 5, 8, '2026-07-18', '14:30:00', '15:30:00', 'DISPONIBLE', 1, '2026-07-13 05:46:39', 'El postulante debe realizar la evaluación dentro del horario asignado.');
 
 -- --------------------------------------------------------
 
@@ -149,6 +163,13 @@ CREATE TABLE `postulacion` (
   `Fecha_actualizacion` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `postulacion`
+--
+
+INSERT INTO `postulacion` (`ID_postulante`, `ID_puesto`, `Fecha_postulacion`, `Estado`, `Score_IA`, `Observaciones_IA`, `Fecha_actualizacion`) VALUES
+(8, 1, '2026-07-12 03:31:44', 'PENDIENTE', NULL, NULL, '2026-07-12 03:31:44');
+
 -- --------------------------------------------------------
 
 --
@@ -187,7 +208,8 @@ INSERT INTO `postulante` (`ID`, `nombre`, `apellido`, `telefono`, `estado_civil`
 (4, 'Ana', 'Martínez', '555-0104', 'Soltera', '4 años en análisis', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5, 'Luis', 'Rodríguez', '555-0105', 'Soltero', '3 años en testing', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6, NULL, NULL, '1122334455', 'Soltero', NULL, NULL, 12, 'https://cv.com/archivo.pdf', 'Av Siempre Viva 742', NULL, NULL, 'Secundario completo', NULL, 'https://medico.com/apto.pdf', '2 años en seguridad privada', '2002-05-10', 'Apto físico'),
-(7, NULL, NULL, '1122334455', 'Soltero', NULL, NULL, 12, 'https://cv.com/archivo.pdf', 'Av Siempre Viva 742', NULL, NULL, 'Secundario completo', NULL, 'https://medico.com/apto.pdf', '2 años en seguridad privada', '2002-05-10', 'Apto físico');
+(7, NULL, NULL, '1122334455', 'Soltero', NULL, NULL, 12, 'https://cv.com/archivo.pdf', 'Av Siempre Viva 742', NULL, NULL, 'Secundario completo', NULL, 'https://medico.com/apto.pdf', '2 años en seguridad privada', '2002-05-10', 'Apto físico'),
+(8, NULL, NULL, '1859', NULL, NULL, NULL, 15, NULL, 'AvenidaSiempreviva', NULL, NULL, NULL, NULL, NULL, NULL, '22/9', NULL);
 
 -- --------------------------------------------------------
 
@@ -198,11 +220,19 @@ INSERT INTO `postulante` (`ID`, `nombre`, `apellido`, `telefono`, `estado_civil`
 CREATE TABLE `pregunta` (
   `ID` int(11) NOT NULL,
   `ID_evaluacion` int(11) NOT NULL,
-  `Pregunta` text NOT NULL,
-  `Tipo` varchar(50) NOT NULL,
-  `Respuesta_correcta` text DEFAULT NULL,
-  `Peso` int(11) DEFAULT 10
+  `pregunta` varchar(2000) NOT NULL,
+  `tipo` varchar(100) NOT NULL,
+  `respuesta_correcta` varchar(2000) NOT NULL,
+  `peso` decimal(5,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `pregunta`
+--
+
+INSERT INTO `pregunta` (`ID`, `ID_evaluacion`, `pregunta`, `tipo`, `respuesta_correcta`, `peso`) VALUES
+(1, 4, '¿Qué harías ante una situación de incendio en el lugar de trabajo?', 'DESARROLLO', 'Activar el protocolo de emergencia, avisar al responsable correspondiente y evacuar siguiendo las normas de seguridad.', 10.00),
+(2, 4, 'Spring Boot permite crear APIs REST usando controladores anotados con @RestController.', 'VERDADERO_FALSO', 'Verdadero', 5.50);
 
 -- --------------------------------------------------------
 
@@ -222,7 +252,8 @@ CREATE TABLE `puesto` (
 --
 
 INSERT INTO `puesto` (`ID`, `Nombre_Puesto`, `tipo`, `requisitos`) VALUES
-(1, 'Backend Java Jr', 'Tiempo completo', 'Java, Spring Boot, SQL, Git, Python');
+(1, 'Backend Java Jr', 'Tiempo completo', 'Java, Spring Boot, SQL, Git, Python'),
+(2, 'Desarrollador Backend', 'Desarrollador backend java', 'Minimo 5 años de experiencia en desarrollo');
 
 -- --------------------------------------------------------
 
@@ -308,7 +339,8 @@ INSERT INTO `usuario` (`ID`, `dni`, `nombre`, `email`, `Contrasena`, `rol`) VALU
 (10, '472712', 'chann', 'chan123@gmail.com', '$2a$10$2afB91V35p4.oB7DqMexVepkglRrcgWzPxgCBPthZUJYPE5E9Y2li', 'postulante'),
 (11, '4334', 'david', 'david123@gmail.com', '$2a$10$f4GwAp90L8fEtw.RtqTv5eMwSSj2SUKLDP6GHd1AaFAuI6Pkg6/DC', 'postulante'),
 (12, '12345678', 'Santiago', 'test@gmail.com', '$2a$10$9kciNePPlmXnxGLiAbLH4upHJF.UoHPrGvZZKnaw6IiZBBpgA49Zi', 'postulante'),
-(14, '113029', 'santy', 'admin123@gmail.com', '$2a$10$VUhEJfPgPKhqAs2don8qI.QZ3DGXffk5yfSfyT/sCxn0B.HqU5DUq', 'admin');
+(14, '113029', 'santy', 'admin123@gmail.com', '$2a$10$VUhEJfPgPKhqAs2don8qI.QZ3DGXffk5yfSfyT/sCxn0B.HqU5DUq', 'admin'),
+(15, '3232', 'chann', 'test2@gmail.com', '$2a$10$a4SIsilSy41ysRzqhRPuwO89gL1H/RnZC3W.Pmx8ZO5mp2STU3Sbq', 'postulante');
 
 --
 -- Indexes for dumped tables
@@ -449,13 +481,13 @@ ALTER TABLE `entrevista`
 -- AUTO_INCREMENT for table `evaluacion`
 --
 ALTER TABLE `evaluacion`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `evaluacion_asignada`
 --
 ALTER TABLE `evaluacion_asignada`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `historial`
@@ -473,19 +505,19 @@ ALTER TABLE `notificacion`
 -- AUTO_INCREMENT for table `postulante`
 --
 ALTER TABLE `postulante`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `pregunta`
 --
 ALTER TABLE `pregunta`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `puesto`
 --
 ALTER TABLE `puesto`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `ranking`
@@ -509,7 +541,7 @@ ALTER TABLE `resultado_evaluacion`
 -- AUTO_INCREMENT for table `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Constraints for dumped tables
