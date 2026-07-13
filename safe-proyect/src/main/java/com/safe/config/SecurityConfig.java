@@ -39,7 +39,7 @@ public class SecurityConfig {
 
                 // ADMIN
                 .requestMatchers("/admin/**")
-                .hasRole("ADMIN")
+                .hasAnyRole("ADMIN", "RRHH")
 
                 // POSTULANTE
                 .requestMatchers("/postulante/**")

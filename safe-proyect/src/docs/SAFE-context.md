@@ -54,45 +54,31 @@ El postulante revisará toda la información cargada y confirmará los datos.
 Posteriormente será redirigido al Dashboard Principal.
 
 Dashboard del Postulante
+
 Desde el dashboard el usuario podrá:
-Ver puestos disponibles.
-Consultar sus postulaciones.
-Ver el estado de cada proceso.
-Acceder a evaluaciones asignadas.
-Consultar resultados obtenidos.
-Actualizar su perfil profesional.
 
-Postulación a Puestos
-Cada oferta laboral dispondrá del botón:
-Postularme
-Al postularse, SAFE utilizará automáticamente:
-Datos personales.
-Perfil profesional.
-CV cargado.
-Historial del postulante.
-Y generará una nueva postulación.
+- Ver puestos disponibles.
+- Consultar sus postulaciones.
+- Ver el estado de cada proceso.
+- Acceder a las evaluaciones que le hayan sido asignadas.
+- Consultar resultados obtenidos.
+- Actualizar su perfil profesional.
 
-Análisis Automático de CV con IA
-Una vez generada una postulación:
-Spring Boot enviará la información a n8n mediante un webhook.
-n8n ejecutará un flujo automatizado que:
-Obtendrá los datos del postulante.
-Analizará el CV.
-Comparará habilidades y experiencia con los requisitos del puesto.
-Calculará un score de compatibilidad.
-Ejemplo
-Requisitos:
-Java ✔
-Spring Boot ✔
-SQL ✔
-Docker ✖
-Resultado:
-Score IA: 85%
-La IA también generará observaciones:
-Fortalezas.
-Habilidades detectadas.
-Requisitos faltantes.
-Nivel de compatibilidad.
+### Evaluaciones Asignadas
+
+El postulante visualizará únicamente las evaluaciones asignadas por RRHH.
+
+Cada evaluación mostrará:
+
+- Nombre de la evaluación.
+- Estado.
+- Fecha asignada.
+- Hora de inicio.
+- Hora de finalización.
+- Duración.
+- Tiempo restante (cuando corresponda).
+
+La evaluación únicamente podrá iniciarse dentro del horario habilitado por RRHH.
 
 Panel de Recursos Humanos
 RRHH contará con un panel administrativo donde podrá visualizar:
@@ -130,20 +116,29 @@ Envía la información a n8n.
 n8n envía automáticamente un correo electrónico informando que el candidato no continuará en el proceso.
 
 Si cumple
-SAFE:
-Actualiza el estado a:
-Siguiente Etapa
-Envía un correo automático.
-Habilita las evaluaciones correspondientes.
+Asignación de Evaluaciones
 
-Sistema de Evaluaciones
-SAFE incorporará un módulo completo de evaluaciones.
-Las evaluaciones podrán ser:
-Técnicas.
-Psicotécnicas.
-Lógica.
-Inglés.
-Personalizadas.
+Cuando un postulante sea aprobado para continuar en el proceso de selección, el personal de RRHH podrá asignarle una o más evaluaciones.
+
+Durante la asignación, RRHH deberá indicar:
+
+- Evaluación.
+- Fecha de realización.
+- Hora de inicio.
+- Hora de finalización.
+- Observaciones (opcional).
+
+Una vez asignada la evaluación:
+
+- SAFE registrará la asignación.
+- La evaluación aparecerá automáticamente en el Dashboard del postulante.
+- SAFE enviará una notificación dentro del sistema.
+- n8n enviará un correo electrónico indicando la fecha y el horario asignados.
+- El postulante podrá consultar la información antes del día programado.
+
+Cada evaluación podrá asignarse a distintos postulantes en fechas y horarios diferentes.
+
+
 
 Gestión de Evaluaciones (RRHH)
 RRHH podrá administrar evaluaciones mediante un CRUD completo.

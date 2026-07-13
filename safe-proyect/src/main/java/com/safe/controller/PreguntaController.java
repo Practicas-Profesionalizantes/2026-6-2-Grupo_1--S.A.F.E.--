@@ -1,9 +1,9 @@
 package com.safe.controller;
 
-import com.safe.dto.EvaluacionRequestDTO;
-import com.safe.dto.EvaluacionResponseDTO;
-import com.safe.model.EvaluacionModel;
-import com.safe.service.EvaluacionService;
+import com.safe.dto.PreguntaRequestDTO;
+import com.safe.dto.PreguntaResponseDTO;
+import com.safe.model.PreguntaModel;
+import com.safe.service.PreguntaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,24 +21,27 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/evaluaciones")
-public class EvaluacionController {
+public class PreguntaController {
 
-    private final EvaluacionService evaluacionService;
+    private final PreguntaService preguntaService;
 
-    public EvaluacionController(EvaluacionService evaluacionService) {
-        this.evaluacionService = evaluacionService;
+    public PreguntaController(PreguntaService preguntaService) {
+        this.preguntaService = preguntaService;
     }
 
-    @PostMapping
-    public ResponseEntity<Map<String, Object>> crear(@RequestBody EvaluacionRequestDTO dto) {
+    @PostMapping("/{idEvaluacion}/preguntas")
+    public ResponseEntity<Map<String, Object>> crear(
+            @PathVariable Integer idEvaluacion,
+            @RequestBody PreguntaRequestDTO dto) {
+
         Map<String, Object> response = new HashMap<>();
 
         try {
-            EvaluacionModel evaluacion = evaluacionService.crearEvaluacion(dto);
+            PreguntaModel pregunta = preguntaService.crear(idEvaluacion, dto);
 
             response.put("status", "ok");
-            response.put("message", "Evaluacion creada correctamente");
-            response.put("data", new EvaluacionResponseDTO(evaluacion));
+            response.put("message", "Pregunta creada correctamente");
+            response.put("data", new PreguntaResponseDTO(pregunta));
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
@@ -48,37 +51,25 @@ public class EvaluacionController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             response.put("status", "error");
-            response.put("message", "Error al crear la evaluacion: " + e.getMessage());
+            response.put("message", e.getMessage());
 
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
 
-    @GetMapping
-    public ResponseEntity<Map<String, Object>> listar() {
-        Map<String, Object> response = new HashMap<>();
-        List<EvaluacionResponseDTO> evaluaciones = evaluacionService.listar()
-                .stream()
-                .map(EvaluacionResponseDTO::new)
-                .toList();
-
-        response.put("status", "ok");
-        response.put("message", "Evaluaciones listadas correctamente");
-        response.put("data", evaluaciones);
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> detalle(@PathVariable Integer id) {
+    @GetMapping("/{idEvaluacion}/preguntas")
+    public ResponseEntity<Map<String, Object>> listar(@PathVariable Integer idEvaluacion) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            EvaluacionModel evaluacion = evaluacionService.obtenerPorId(id);
+            List<PreguntaResponseDTO> preguntas = preguntaService.listarPorEvaluacion(idEvaluacion)
+                    .stream()
+                    .map(PreguntaResponseDTO::new)
+                    .toList();
 
             response.put("status", "ok");
-            response.put("message", "Detalle de evaluacion obtenido correctamente");
-            response.put("data", new EvaluacionResponseDTO(evaluacion));
+            response.put("message", "Preguntas listadas correctamente");
+            response.put("data", preguntas);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -89,19 +80,39 @@ public class EvaluacionController {
         }
     }
 
-    @PutMapping("/{id}")
+    @GetMapping("/preguntas/{idPregunta}")
+    public ResponseEntity<Map<String, Object>> detalle(@PathVariable Long idPregunta) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            PreguntaModel pregunta = preguntaService.obtenerPorId(idPregunta);
+
+            response.put("status", "ok");
+            response.put("message", "Detalle de pregunta obtenido correctamente");
+            response.put("data", new PreguntaResponseDTO(pregunta));
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/preguntas/{idPregunta}")
     public ResponseEntity<Map<String, Object>> actualizar(
-            @PathVariable Integer id,
-            @RequestBody EvaluacionRequestDTO dto) {
+            @PathVariable Long idPregunta,
+            @RequestBody PreguntaRequestDTO dto) {
 
         Map<String, Object> response = new HashMap<>();
 
         try {
-            EvaluacionModel evaluacion = evaluacionService.actualizar(id, dto);
+            PreguntaModel pregunta = preguntaService.actualizar(idPregunta, dto);
 
             response.put("status", "ok");
-            response.put("message", "Evaluacion actualizada correctamente");
-            response.put("data", new EvaluacionResponseDTO(evaluacion));
+            response.put("message", "Pregunta actualizada correctamente");
+            response.put("data", new PreguntaResponseDTO(pregunta));
 
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
@@ -117,15 +128,15 @@ public class EvaluacionController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> eliminar(@PathVariable Integer id) {
+    @DeleteMapping("/preguntas/{idPregunta}")
+    public ResponseEntity<Map<String, Object>> eliminar(@PathVariable Long idPregunta) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            evaluacionService.eliminar(id);
+            preguntaService.eliminar(idPregunta);
 
             response.put("status", "ok");
-            response.put("message", "Evaluacion eliminada correctamente");
+            response.put("message", "Pregunta eliminada correctamente");
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
