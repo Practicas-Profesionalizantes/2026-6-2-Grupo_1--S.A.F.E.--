@@ -6,8 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 import com.safe.model.RankingModel;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RankingRepository extends JpaRepository<RankingModel, Integer> {
     @Query("SELECT r FROM Ranking r ORDER BY r.promedioFinal DESC")
     List<RankingModel> findAllOrderByPromedio();
+
+    Optional<RankingModel> findByIdPostulante(Integer idPostulante);
 }

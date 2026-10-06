@@ -10,6 +10,7 @@ import com.safe.repository.PostulanteRepository;
 import com.safe.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -80,6 +81,30 @@ public class EvaluacionAsignadaService {
     public EvaluacionAsignadaModel obtenerPorId(Long id) {
         return evaluacionAsignadaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Asignacion de evaluacion no encontrada"));
+    }
+
+    public EvaluacionAsignadaModel registrarResultadoCorreccion(
+            Long id,
+            BigDecimal puntajeTotal,
+            Boolean aprobado,
+            String observacionesIa,
+            String estado) {
+
+        EvaluacionAsignadaModel asignacion = obtenerPorId(id);
+        asignacion.setEstado(
+                estado == null || estado.isBlank()
+                        ? "FINALIZADA"
+                        : estado.trim().toUpperCase()
+        );
+
+        String resumen = "Resultado IA"
+                + " | puntajeTotal=" + (puntajeTotal != null ? puntajeTotal : "SIN_PUNTAJE")
+                + " | aprobado=" + (aprobado != null ? aprobado : "SIN_DEFINIR")
+                + " | observaciones=" + (observacionesIa != null ? observacionesIa : "");
+
+        asignacion.setObservaciones(resumen);
+
+        return evaluacionAsignadaRepository.save(asignacion);
     }
 
     private void validar(EvaluacionAsignadaRequestDTO dto) {
