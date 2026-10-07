@@ -34,6 +34,8 @@ public class PostulacionService {
         PostulanteModel postulante = postulanteService.obtenerPorEmail(emailPostulante);
         PuestoModel puesto = puestoService.obtenerDetalle(idPuesto);
 
+        validarPerfilListoParaPostulacion(postulante);
+
         PostulacionId id = new PostulacionId(postulante.getId(), puesto.getId());
 
         Optional<PostulacionModel> existe = postulacionRepository.findById(id);
@@ -88,5 +90,23 @@ public class PostulacionService {
                 "enviado", enviado,
                 "message", enviado ? "Workflow de ranking enviado a n8n" : "Webhook de ranking no configurado o no disponible"
         );
+    }
+
+    private void validarPerfilListoParaPostulacion(PostulanteModel postulante) {
+        if (estaVacio(postulante.getTelefono())
+                || estaVacio(postulante.getDireccion())
+                || postulante.getFechaNacimiento() == null
+                || estaVacio(postulante.getExperienciaLaboral())
+                || estaVacio(postulante.getEstudios())) {
+            throw new RuntimeException("Completa tus datos del perfil antes de postularte.");
+        }
+
+        if (estaVacio(postulante.getCvUrl())) {
+            throw new RuntimeException("Para postularte primero tenes que cargar tu CV en PDF o imagen.");
+        }
+    }
+
+    private boolean estaVacio(String value) {
+        return value == null || value.isBlank();
     }
 }

@@ -50,4 +50,18 @@ public class PostulacionController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> listarMisPostulaciones(Authentication authentication) {
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "message", "Postulaciones listadas correctamente",
+                "data", postulacionService.listarDelPostulante(email)
+                        .stream()
+                        .map(PostulacionResponseDTO::new)
+                        .toList()
+        ));
+    }
 }

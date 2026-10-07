@@ -24,6 +24,9 @@ Propiedades disponibles:
 
 ```properties
 safe.api.public-base-url=http://localhost:8080
+safe.uploads.dir=uploads
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
 
 n8n.webhook.analisis-cv-url=
 n8n.webhook.correccion-evaluacion-url=
@@ -65,6 +68,34 @@ X-SAFE-WEBHOOK-SECRET: mi_clave_segura
 
 Se dispara automaticamente cuando un postulante se postula a un puesto.
 
+Antes de postularse, el postulante debe cargar su CV como archivo real en SAFE:
+
+```http
+POST /postulante/perfil/cv
+Content-Type: multipart/form-data
+Authorization: Bearer <token_postulante>
+```
+
+Campo del formulario:
+
+```text
+archivo
+```
+
+Formatos permitidos:
+
+```text
+PDF, JPG, PNG, WEBP
+```
+
+El limite configurado es 10MB. SAFE guarda el archivo en `safe.uploads.dir` y actualiza el perfil con una ruta interna como:
+
+```text
+/archivos/cv/uuid.pdf
+```
+
+Cuando SAFE envia el payload a n8n, transforma esa ruta en URL absoluta usando `safe.api.public-base-url`.
+
 Endpoint interno del flujo:
 
 ```http
@@ -90,12 +121,14 @@ SAFE envia a n8n:
     "dni": "12345678",
     "experiencia": "Experiencia cargada",
     "estudios": "Estudios cargados",
-    "cvUrl": "https://...",
+    "cvUrl": "http://localhost:8080/archivos/cv/uuid.pdf",
     "telefono": "123456",
     "direccion": "Direccion"
   }
 }
 ```
+
+En n8n, el agente puede descargar o leer el archivo desde `postulante.cvUrl`. Si n8n esta desplegado fuera de la PC local, `safe.api.public-base-url` debe apuntar a una URL accesible desde n8n, no a `localhost`.
 
 ### Callback que debe llamar n8n
 

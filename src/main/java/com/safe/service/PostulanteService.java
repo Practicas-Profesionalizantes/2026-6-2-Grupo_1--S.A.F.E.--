@@ -3,6 +3,7 @@ package com.safe.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.safe.dto.PostulanteRequestDTO;
 import com.safe.model.PostulanteModel;
@@ -15,12 +16,15 @@ public class PostulanteService {
 
     private final PostulanteRepository postulanteRepo;
     private final UsuarioRepository usuarioRepo;
+    private final ArchivoService archivoService;
 
     public PostulanteService(PostulanteRepository postulanteRepo,
-                             UsuarioRepository usuarioRepo) {
+                             UsuarioRepository usuarioRepo,
+                             ArchivoService archivoService) {
 
         this.postulanteRepo = postulanteRepo;
         this.usuarioRepo = usuarioRepo;
+        this.archivoService = archivoService;
     }
 
     // =========================
@@ -42,7 +46,6 @@ public class PostulanteService {
         postulante.setExperienciaLaboral(dto.getExperienciaLaboral());
         postulante.setEstudios(dto.getEstudios());
         postulante.setInfoMedica(dto.getInfoMedica());
-        postulante.setCvUrl(dto.getCvUrl());
         postulante.setAptoMedicoUrl(dto.getAptoMedicoUrl());
 
         postulante.setUsuario(usuario);
@@ -92,8 +95,21 @@ public class PostulanteService {
         postulante.setExperienciaLaboral(dto.getExperienciaLaboral());
         postulante.setEstudios(dto.getEstudios());
         postulante.setInfoMedica(dto.getInfoMedica());
-        postulante.setCvUrl(dto.getCvUrl());
         postulante.setAptoMedicoUrl(dto.getAptoMedicoUrl());
+
+        return postulanteRepo.save(postulante);
+    }
+
+    // =========================
+    // SUBIR CV
+    // =========================
+    public PostulanteModel subirCv(String email,
+                                   MultipartFile archivo) {
+
+        PostulanteModel postulante = obtenerPorEmail(email);
+        String nombreArchivo = archivoService.guardarCv(archivo);
+
+        postulante.setCvUrl("/archivos/cv/" + nombreArchivo);
 
         return postulanteRepo.save(postulante);
     }

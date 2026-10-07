@@ -33,6 +33,8 @@ public class SecurityConfig {
                         "/usuario/login",
                         "/usuario/register",
                         "/puestos",
+                        "/puestos/**",
+                        "/archivos/cv/**",
                         "/webhooks/n8n/**"
                 ).permitAll()
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "RRHH")

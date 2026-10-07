@@ -69,7 +69,7 @@ public class N8nWorkflowService {
         }
         datosPostulante.put("experiencia", postulante.getExperienciaLaboral());
         datosPostulante.put("estudios", postulante.getEstudios());
-        datosPostulante.put("cvUrl", postulante.getCvUrl());
+        datosPostulante.put("cvUrl", construirUrlPublica(postulante.getCvUrl()));
         datosPostulante.put("telefono", postulante.getTelefono());
         datosPostulante.put("direccion", postulante.getDireccion());
         payload.put("postulante", datosPostulante);
@@ -179,5 +179,22 @@ public class N8nWorkflowService {
 
     private boolean estaVacia(String value) {
         return value == null || value.isBlank();
+    }
+
+    private String construirUrlPublica(String value) {
+        if (estaVacia(value)) {
+            return value;
+        }
+
+        if (value.startsWith("http://") || value.startsWith("https://")) {
+            return value;
+        }
+
+        String baseUrl = publicBaseUrl.endsWith("/")
+                ? publicBaseUrl.substring(0, publicBaseUrl.length() - 1)
+                : publicBaseUrl;
+        String path = value.startsWith("/") ? value : "/" + value;
+
+        return baseUrl + path;
     }
 }
