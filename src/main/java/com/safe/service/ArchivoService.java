@@ -5,8 +5,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,11 +23,9 @@ import java.util.UUID;
 public class ArchivoService {
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
+    private static final int MAX_EXTRACTED_TEXT_LENGTH = 8000;
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
-            "application/pdf",
-            "image/jpeg",
-            "image/png",
-            "image/webp"
+            "application/pdf"
     );
 
     private final Path cvStoragePath;
@@ -52,6 +54,17 @@ public class ArchivoService {
         } catch (IOException e) {
             throw new RuntimeException("No se pudo guardar el CV", e);
         }
+    }
+
+    public ResultadoExtraccionCv extraerTextoCv(MultipartFile archivo) {
+        validarArchivo(archivo);
+
+        String contentType = archivo.getContentType();
+        if ("application/pdf".equals(contentType)) {
+            return extraerTextoPdf(archivo);
+        }
+
+        return new ResultadoExtraccionCv(null, "NO_SOPORTADO", "Tipo de archivo no soportado para extraccion de texto.");
     }
 
     public Resource cargarCv(String nombreArchivo) {
@@ -94,24 +107,70 @@ public class ArchivoService {
 
         String contentType = archivo.getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
-            throw new IllegalArgumentException("El CV debe ser PDF, JPG, PNG o WEBP");
+            throw new IllegalArgumentException("El CV debe ser un archivo PDF con texto seleccionable");
         }
     }
 
     private String obtenerExtension(String originalFilename, String contentType) {
         if (originalFilename != null && originalFilename.contains(".")) {
             String extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
-            if (extension.matches("\\.(pdf|jpg|jpeg|png|webp)")) {
+            if (extension.equals(".pdf")) {
                 return extension;
             }
         }
 
         return switch (contentType) {
             case "application/pdf" -> ".pdf";
-            case "image/jpeg" -> ".jpg";
-            case "image/png" -> ".png";
-            case "image/webp" -> ".webp";
             default -> ".bin";
         };
+    }
+
+    private ResultadoExtraccionCv extraerTextoPdf(MultipartFile archivo) {
+        try (InputStream inputStream = archivo.getInputStream();
+             PDDocument document = Loader.loadPDF(inputStream.readAllBytes())) {
+
+            PDFTextStripper stripper = new PDFTextStripper();
+            String text = limpiarTexto(stripper.getText(document));
+
+            if (text.isBlank()) {
+                return new ResultadoExtraccionCv(
+                        null,
+                        "SIN_TEXTO",
+                        "El PDF no contiene texto seleccionable. Puede ser un escaneo y requerir OCR."
+                );
+            }
+
+            return new ResultadoExtraccionCv(limitarTexto(text), "TEXTO_EXTRAIDO", null);
+        } catch (IOException e) {
+            return new ResultadoExtraccionCv(
+                    null,
+                    "ERROR_EXTRACCION",
+                    "No se pudo extraer texto del PDF: " + e.getMessage()
+            );
+        }
+    }
+
+    private String limpiarTexto(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value
+                .replace('\u0000', ' ')
+                .replaceAll("[\\t\\x0B\\f\\r]+", " ")
+                .replaceAll(" +", " ")
+                .replaceAll("\\n{3,}", "\n\n")
+                .trim();
+    }
+
+    private String limitarTexto(String value) {
+        if (value.length() <= MAX_EXTRACTED_TEXT_LENGTH) {
+            return value;
+        }
+
+        return value.substring(0, MAX_EXTRACTED_TEXT_LENGTH);
+    }
+
+    public record ResultadoExtraccionCv(String texto, String estado, String observacion) {
     }
 }

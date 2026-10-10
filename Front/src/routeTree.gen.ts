@@ -19,6 +19,8 @@ import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as EvaluacionIdRouteImport } from './routes/evaluacion.$id'
 import { Route as RrhhIndexRouteImport } from './routes/rrhh/index'
 import { Route as RrhhEvaluacionesRouteImport } from './routes/rrhh/evaluaciones'
+import { Route as RrhhPostulacionesRouteImport } from './routes/rrhh/postulaciones'
+import { Route as RrhhPuestosRouteImport } from './routes/rrhh/puestos'
 import { Route as RrhhRankingRouteImport } from './routes/rrhh/ranking'
 
 const IndexRoute = IndexRouteImport.update({
@@ -71,6 +73,16 @@ const RrhhEvaluacionesRoute = RrhhEvaluacionesRouteImport.update({
   path: '/rrhh/evaluaciones',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RrhhPostulacionesRoute = RrhhPostulacionesRouteImport.update({
+  id: '/rrhh/postulaciones',
+  path: '/rrhh/postulaciones',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RrhhPuestosRoute = RrhhPuestosRouteImport.update({
+  id: '/rrhh/puestos',
+  path: '/rrhh/puestos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RrhhRankingRoute = RrhhRankingRouteImport.update({
   id: '/rrhh/ranking',
   path: '/rrhh/ranking',
@@ -87,6 +99,8 @@ export interface FileRoutesByFullPath {
   '/registro': typeof RegistroRoute
   '/evaluacion/$id': typeof EvaluacionIdRoute
   '/rrhh/evaluaciones': typeof RrhhEvaluacionesRoute
+  '/rrhh/postulaciones': typeof RrhhPostulacionesRoute
+  '/rrhh/puestos': typeof RrhhPuestosRoute
   '/rrhh/ranking': typeof RrhhRankingRoute
   '/rrhh/': typeof RrhhIndexRoute
 }
@@ -100,6 +114,8 @@ export interface FileRoutesByTo {
   '/registro': typeof RegistroRoute
   '/evaluacion/$id': typeof EvaluacionIdRoute
   '/rrhh/evaluaciones': typeof RrhhEvaluacionesRoute
+  '/rrhh/postulaciones': typeof RrhhPostulacionesRoute
+  '/rrhh/puestos': typeof RrhhPuestosRoute
   '/rrhh/ranking': typeof RrhhRankingRoute
   '/rrhh': typeof RrhhIndexRoute
 }
@@ -114,6 +130,8 @@ export interface FileRoutesById {
   '/registro': typeof RegistroRoute
   '/evaluacion/$id': typeof EvaluacionIdRoute
   '/rrhh/evaluaciones': typeof RrhhEvaluacionesRoute
+  '/rrhh/postulaciones': typeof RrhhPostulacionesRoute
+  '/rrhh/puestos': typeof RrhhPuestosRoute
   '/rrhh/ranking': typeof RrhhRankingRoute
   '/rrhh/': typeof RrhhIndexRoute
 }
@@ -129,6 +147,8 @@ export interface FileRouteTypes {
     | '/registro'
     | '/evaluacion/$id'
     | '/rrhh/evaluaciones'
+    | '/rrhh/postulaciones'
+    | '/rrhh/puestos'
     | '/rrhh/ranking'
     | '/rrhh/'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +162,8 @@ export interface FileRouteTypes {
     | '/registro'
     | '/evaluacion/$id'
     | '/rrhh/evaluaciones'
+    | '/rrhh/postulaciones'
+    | '/rrhh/puestos'
     | '/rrhh/ranking'
     | '/rrhh'
   id:
@@ -155,6 +177,8 @@ export interface FileRouteTypes {
     | '/registro'
     | '/evaluacion/$id'
     | '/rrhh/evaluaciones'
+    | '/rrhh/postulaciones'
+    | '/rrhh/puestos'
     | '/rrhh/ranking'
     | '/rrhh/'
   fileRoutesById: FileRoutesById
@@ -169,6 +193,8 @@ export interface RootRouteChildren {
   RegistroRoute: typeof RegistroRoute
   EvaluacionIdRoute: typeof EvaluacionIdRoute
   RrhhEvaluacionesRoute: typeof RrhhEvaluacionesRoute
+  RrhhPostulacionesRoute: typeof RrhhPostulacionesRoute
+  RrhhPuestosRoute: typeof RrhhPuestosRoute
   RrhhRankingRoute: typeof RrhhRankingRoute
   RrhhIndexRoute: typeof RrhhIndexRoute
 }
@@ -245,6 +271,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RrhhEvaluacionesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rrhh/postulaciones': {
+      id: '/rrhh/postulaciones'
+      path: '/rrhh/postulaciones'
+      fullPath: '/rrhh/postulaciones'
+      preLoaderRoute: typeof RrhhPostulacionesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rrhh/puestos': {
+      id: '/rrhh/puestos'
+      path: '/rrhh/puestos'
+      fullPath: '/rrhh/puestos'
+      preLoaderRoute: typeof RrhhPuestosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rrhh/ranking': {
       id: '/rrhh/ranking'
       path: '/rrhh/ranking'
@@ -265,6 +305,8 @@ const rootRouteChildren: RootRouteChildren = {
   RegistroRoute: RegistroRoute,
   EvaluacionIdRoute: EvaluacionIdRoute,
   RrhhEvaluacionesRoute: RrhhEvaluacionesRoute,
+  RrhhPostulacionesRoute: RrhhPostulacionesRoute,
+  RrhhPuestosRoute: RrhhPuestosRoute,
   RrhhRankingRoute: RrhhRankingRoute,
   RrhhIndexRoute: RrhhIndexRoute,
 }

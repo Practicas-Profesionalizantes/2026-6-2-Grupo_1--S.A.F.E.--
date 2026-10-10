@@ -102,7 +102,7 @@ public class PostulacionService {
         }
 
         if (estaVacio(postulante.getCvUrl())) {
-            throw new RuntimeException("Para postularte primero tenes que cargar tu CV en PDF o imagen.");
+            throw new RuntimeException("Para postularte primero tenes que cargar tu CV en PDF.");
         }
     }
 

@@ -143,7 +143,7 @@ function Perfil() {
               <div className="rounded-xl border border-dashed border-primary/35 bg-primary/6 p-6 text-center">
                 <FileUp className="mx-auto size-7 text-primary" />
                 <p className="mt-3 text-sm font-medium">
-                  {perfil?.cvUrl ? "CV cargado" : "Subi tu CV en PDF o imagen"}
+                  {perfil?.cvUrl ? "CV cargado" : "Subi tu CV en PDF"}
                 </p>
                 {perfil?.cvUrl ? (
                   <a
@@ -155,13 +155,13 @@ function Perfil() {
                     Ver archivo
                   </a>
                 ) : (
-                  <p className="text-xs text-muted-foreground">Necesario para poder postularte.</p>
+                  <p className="text-xs text-muted-foreground">Debe ser un PDF con texto seleccionable.</p>
                 )}
                 <label className="mt-4 inline-block cursor-pointer rounded-lg border border-border bg-surface-2/60 px-4 py-2 text-sm transition-colors hover:border-primary/40 hover:text-primary">
                   {perfil?.cvUrl ? "Reemplazar archivo" : "Cargar archivo"}
                   <input
                     type="file"
-                    accept="application/pdf,image/jpeg,image/png,image/webp"
+                    accept="application/pdf,.pdf"
                     className="hidden"
                     onChange={(event) => void cargarCv(event.target.files?.[0])}
                   />

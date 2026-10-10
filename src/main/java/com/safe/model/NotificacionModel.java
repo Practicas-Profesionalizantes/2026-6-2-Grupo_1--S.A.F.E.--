@@ -21,6 +21,12 @@ public class NotificacionModel {
     @Column(name = "ID_postulante")
     private Long idPostulante;
 
+    @Column(name = "Email", length = 255)
+    private String email;
+
+    @Column(name = "Nombre", length = 255)
+    private String nombre;
+
     @Column(name = "Mensaje", length = 2000)
     private String mensaje;
 
@@ -32,6 +38,9 @@ public class NotificacionModel {
 
     @Column(name = "Detalle", columnDefinition = "TEXT")
     private String detalle;
+
+    @Column(name = "Datos", columnDefinition = "TEXT")
+    private String datos;
 
     @Column(name = "Fecha")
     private LocalDateTime fecha;
@@ -57,6 +66,22 @@ public class NotificacionModel {
 
     public void setIdPostulante(Long idPostulante) {
         this.idPostulante = idPostulante;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getMensaje() {
@@ -89,6 +114,14 @@ public class NotificacionModel {
 
     public void setDetalle(String detalle) {
         this.detalle = detalle;
+    }
+
+    public String getDatos() {
+        return datos;
+    }
+
+    public void setDatos(String datos) {
+        this.datos = datos;
     }
 
     public LocalDateTime getFecha() {

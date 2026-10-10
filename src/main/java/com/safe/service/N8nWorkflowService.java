@@ -5,7 +5,10 @@ import com.safe.model.EvaluacionAsignadaModel;
 import com.safe.model.PostulacionModel;
 import com.safe.model.PostulanteModel;
 import com.safe.model.PreguntaModel;
+import com.safe.model.RespuestaEvaluacionModel;
+import com.safe.repository.PostulanteRepository;
 import com.safe.repository.PreguntaRepository;
+import com.safe.repository.RespuestaEvaluacionRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +25,8 @@ public class N8nWorkflowService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final PreguntaRepository preguntaRepository;
+    private final RespuestaEvaluacionRepository respuestaEvaluacionRepository;
+    private final PostulanteRepository postulanteRepository;
     private final String publicBaseUrl;
     private final String analisisCvUrl;
     private final String correccionEvaluacionUrl;
@@ -30,12 +35,16 @@ public class N8nWorkflowService {
 
     public N8nWorkflowService(
             PreguntaRepository preguntaRepository,
+            RespuestaEvaluacionRepository respuestaEvaluacionRepository,
+            PostulanteRepository postulanteRepository,
             @Value("${safe.api.public-base-url:http://localhost:8080}") String publicBaseUrl,
             @Value("${n8n.webhook.analisis-cv-url:}") String analisisCvUrl,
             @Value("${n8n.webhook.correccion-evaluacion-url:}") String correccionEvaluacionUrl,
             @Value("${n8n.webhook.ranking-url:}") String rankingUrl,
             @Value("${n8n.webhook.notificacion-url:}") String notificacionUrl) {
         this.preguntaRepository = preguntaRepository;
+        this.respuestaEvaluacionRepository = respuestaEvaluacionRepository;
+        this.postulanteRepository = postulanteRepository;
         this.publicBaseUrl = publicBaseUrl;
         this.analisisCvUrl = analisisCvUrl;
         this.correccionEvaluacionUrl = correccionEvaluacionUrl;
@@ -70,6 +79,8 @@ public class N8nWorkflowService {
         datosPostulante.put("experiencia", postulante.getExperienciaLaboral());
         datosPostulante.put("estudios", postulante.getEstudios());
         datosPostulante.put("cvUrl", construirUrlPublica(postulante.getCvUrl()));
+        datosPostulante.put("cvTextoExtraido", postulante.getCvTextoExtraido());
+        datosPostulante.put("cvProcesamientoEstado", postulante.getCvProcesamientoEstado());
         datosPostulante.put("telefono", postulante.getTelefono());
         datosPostulante.put("direccion", postulante.getDireccion());
         payload.put("postulante", datosPostulante);
@@ -104,10 +115,15 @@ public class N8nWorkflowService {
         }
         payload.put("postulante", postulante);
 
+        Map<Long, String> respuestasPorPregunta = new HashMap<>();
+        for (RespuestaEvaluacionModel respuesta : respuestaEvaluacionRepository.findByAsignacionId(asignacion.getId())) {
+            respuestasPorPregunta.put(respuesta.getPregunta().getId(), respuesta.getRespuesta());
+        }
+
         List<Map<String, Object>> preguntas = preguntaRepository
                 .findByEvaluacionIdOrderByIdAsc(asignacion.getEvaluacion().getId())
                 .stream()
-                .map(this::mapearPregunta)
+                .map(pregunta -> mapearPregunta(pregunta, respuestasPorPregunta))
                 .toList();
         payload.put("preguntas", preguntas);
 
@@ -137,18 +153,48 @@ public class N8nWorkflowService {
         Map<String, Object> payload = new HashMap<>();
         payload.put("evento", "NOTIFICACION");
         payload.put("callbackUrl", publicBaseUrl + "/webhooks/n8n/notificacion");
-        payload.put("notificacion", dto);
+        payload.put("notificacion", mapearNotificacion(dto));
 
         return enviar(notificacionUrl, payload);
     }
 
-    private Map<String, Object> mapearPregunta(PreguntaModel pregunta) {
+    private Map<String, Object> mapearPregunta(PreguntaModel pregunta, Map<Long, String> respuestasPorPregunta) {
         Map<String, Object> data = new HashMap<>();
         data.put("id", pregunta.getId());
         data.put("pregunta", pregunta.getPregunta());
         data.put("tipo", pregunta.getTipo());
         data.put("respuestaCorrecta", pregunta.getRespuestaCorrecta());
+        data.put("respuestaPostulante", respuestasPorPregunta.getOrDefault(pregunta.getId(), ""));
         data.put("peso", pregunta.getPeso());
+        return data;
+    }
+
+    private Map<String, Object> mapearNotificacion(NotificacionWorkflowDTO dto) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("idPostulante", dto.getIdPostulante());
+        data.put("mensaje", dto.getMensaje());
+        data.put("tipo", dto.getTipo());
+        data.put("estado", dto.getEstado());
+        data.put("detalle", dto.getDetalle());
+        data.put("datos", dto.getDatos());
+
+        String email = dto.getEmail();
+        String nombre = dto.getNombre();
+
+        if (dto.getIdPostulante() != null && (estaVacia(email) || estaVacia(nombre))) {
+            PostulanteModel postulante = postulanteRepository.findById(dto.getIdPostulante()).orElse(null);
+            if (postulante != null && postulante.getUsuario() != null) {
+                if (estaVacia(email)) {
+                    email = postulante.getUsuario().getEmail();
+                }
+                if (estaVacia(nombre)) {
+                    nombre = postulante.getUsuario().getNombre();
+                }
+            }
+        }
+
+        data.put("email", email);
+        data.put("nombre", nombre);
         return data;
     }
 

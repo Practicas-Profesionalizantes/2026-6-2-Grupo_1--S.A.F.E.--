@@ -38,6 +38,8 @@ export type PostulanteApi = {
   estudios?: string;
   infoMedica?: string;
   cvUrl?: string;
+  cvTextoExtraido?: string;
+  cvProcesamientoEstado?: string;
   aptoMedicoUrl?: string;
   nombre?: string;
   email?: string;
@@ -48,6 +50,10 @@ export type PostulacionApi = {
   idPostulante: number;
   idPuesto: number;
   nombrePuesto: string;
+  nombrePostulante?: string;
+  emailPostulante?: string;
+  dniPostulante?: string;
+  cvUrl?: string;
   fechaPostulacion?: string;
   estado: string;
   scoreIa?: number;
@@ -80,6 +86,15 @@ export type EvaluacionAsignadaApi = {
   intento?: number;
   fechaAsignacion?: string;
   observaciones?: string;
+};
+
+export type RespuestaEvaluacionApi = {
+  id: number;
+  idAsignacion: number;
+  idPregunta: number;
+  pregunta: string;
+  respuesta: string;
+  fechaRespuesta?: string;
 };
 
 type RequestOptions = Omit<RequestInit, "body"> & {
@@ -165,6 +180,8 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     const message =
       typeof payload === "object" && payload && "message" in payload
         ? String((payload as { message?: string }).message)
+        : typeof payload === "string" && payload.trim()
+          ? payload
         : "No se pudo completar la operacion";
     throw new Error(message);
   }
@@ -278,6 +295,11 @@ export async function listarMisPostulaciones() {
   return response.data ?? [];
 }
 
+export async function listarPostulacionesAdmin() {
+  const response = await apiRequest<ApiEnvelope<PostulacionApi[]>>("/admin/postulaciones");
+  return response.data ?? [];
+}
+
 export async function listarEvaluaciones() {
   const response = await apiRequest<ApiEnvelope<EvaluacionApi[]>>("/admin/evaluaciones");
   return response.data ?? [];
@@ -335,4 +357,18 @@ export async function asignarEvaluacion(data: {
     },
   );
   return response.data;
+}
+
+export async function guardarRespuestasEvaluacion(
+  idAsignacion: number,
+  respuestas: Array<{ idPregunta: number; respuesta: string }>,
+) {
+  const response = await apiRequest<ApiEnvelope<RespuestaEvaluacionApi[]>>(
+    `/postulante/evaluaciones/asignadas/${idAsignacion}/respuestas`,
+    {
+      method: "POST",
+      body: { respuestas },
+    },
+  );
+  return response.data ?? [];
 }

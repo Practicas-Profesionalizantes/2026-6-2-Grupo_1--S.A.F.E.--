@@ -19,10 +19,13 @@ public class NotificacionService {
     public NotificacionModel registrar(NotificacionWorkflowDTO dto) {
         NotificacionModel notificacion = new NotificacionModel();
         notificacion.setIdPostulante(dto.getIdPostulante());
+        notificacion.setEmail(dto.getEmail());
+        notificacion.setNombre(dto.getNombre());
         notificacion.setMensaje(dto.getMensaje());
         notificacion.setTipo(dto.getTipo());
         notificacion.setEstado(dto.getEstado());
         notificacion.setDetalle(dto.getDetalle());
+        notificacion.setDatos(convertirDatos(dto));
 
         return notificacionRepository.save(notificacion);
     }
@@ -33,5 +36,13 @@ public class NotificacionService {
 
     public List<NotificacionModel> listarPorPostulante(Long idPostulante) {
         return notificacionRepository.findByIdPostulanteOrderByFechaDesc(idPostulante);
+    }
+
+    private String convertirDatos(NotificacionWorkflowDTO dto) {
+        if (dto.getDatos() == null || dto.getDatos().isEmpty()) {
+            return null;
+        }
+
+        return dto.getDatos().toString();
     }
 }

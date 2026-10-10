@@ -14,6 +14,8 @@ public class PostulanteResponseDTO {
     private String estudios;
     private String infoMedica;
     private String cvUrl;
+    private String cvTextoExtraido;
+    private String cvProcesamientoEstado;
     private String aptoMedicoUrl;
 
     // datos del usuario
@@ -31,6 +33,8 @@ public class PostulanteResponseDTO {
         this.estudios = postulante.getEstudios();
         this.infoMedica = postulante.getInfoMedica();
         this.cvUrl = postulante.getCvUrl();
+        this.cvTextoExtraido = postulante.getCvTextoExtraido();
+        this.cvProcesamientoEstado = postulante.getCvProcesamientoEstado();
         this.aptoMedicoUrl = postulante.getAptoMedicoUrl();
 
         if (postulante.getUsuario() != null) {
@@ -112,6 +116,22 @@ public class PostulanteResponseDTO {
 
     public void setCvUrl(String cvUrl) {
         this.cvUrl = cvUrl;
+    }
+
+    public String getCvTextoExtraido() {
+        return cvTextoExtraido;
+    }
+
+    public void setCvTextoExtraido(String cvTextoExtraido) {
+        this.cvTextoExtraido = cvTextoExtraido;
+    }
+
+    public String getCvProcesamientoEstado() {
+        return cvProcesamientoEstado;
+    }
+
+    public void setCvProcesamientoEstado(String cvProcesamientoEstado) {
+        this.cvProcesamientoEstado = cvProcesamientoEstado;
     }
 
     public String getAptoMedicoUrl() {

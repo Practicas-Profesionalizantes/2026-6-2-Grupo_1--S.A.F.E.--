@@ -29,6 +29,13 @@ public class PostulanteModel {
 
     private String cvUrl;
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String cvTextoExtraido;
+
+    @Column(length = 1000)
+    private String cvProcesamientoEstado;
+
     private String aptoMedicoUrl;
 
     @OneToOne
@@ -107,6 +114,22 @@ public class PostulanteModel {
 
     public void setCvUrl(String cvUrl) {
         this.cvUrl = cvUrl;
+    }
+
+    public String getCvTextoExtraido() {
+        return cvTextoExtraido;
+    }
+
+    public void setCvTextoExtraido(String cvTextoExtraido) {
+        this.cvTextoExtraido = cvTextoExtraido;
+    }
+
+    public String getCvProcesamientoEstado() {
+        return cvProcesamientoEstado;
+    }
+
+    public void setCvProcesamientoEstado(String cvProcesamientoEstado) {
+        this.cvProcesamientoEstado = cvProcesamientoEstado;
     }
 
     public String getAptoMedicoUrl() {

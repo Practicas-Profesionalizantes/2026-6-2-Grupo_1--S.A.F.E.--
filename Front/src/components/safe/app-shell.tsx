@@ -1,4 +1,4 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+﻿import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import {
   Bell,
@@ -24,7 +24,9 @@ const navPostulante = [
 ];
 
 const navRRHH = [
-  { to: "/rrhh", label: "Postulantes", icon: Users },
+  { to: "/rrhh", label: "Resumen", icon: LayoutDashboard },
+  { to: "/rrhh/postulaciones", label: "Postulaciones", icon: Users },
+  { to: "/rrhh/puestos", label: "Puestos", icon: BriefcaseBusiness },
   { to: "/rrhh/evaluaciones", label: "Evaluaciones", icon: ClipboardList },
   { to: "/rrhh/ranking", label: "Ranking IA", icon: Trophy },
 ];
@@ -79,8 +81,8 @@ export function AppShell({
         </nav>
 
         <div className="m-3 rounded-xl border border-sidebar-border bg-surface-2/60 p-4">
-          <p className="text-xs font-medium text-muted-foreground">Automatización n8n</p>
-          <p className="mt-1 text-sm text-foreground">12 flujos activos</p>
+          <p className="text-xs font-medium text-muted-foreground">Automatizacion n8n</p>
+          <p className="mt-1 text-sm text-foreground">Analizador de CV conectado</p>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
             <div className="h-full w-4/5 rounded-full bg-[image:var(--gradient-primary)]" />
           </div>

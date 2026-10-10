@@ -107,9 +107,12 @@ public class PostulanteService {
                                    MultipartFile archivo) {
 
         PostulanteModel postulante = obtenerPorEmail(email);
+        ArchivoService.ResultadoExtraccionCv extraccion = archivoService.extraerTextoCv(archivo);
         String nombreArchivo = archivoService.guardarCv(archivo);
 
         postulante.setCvUrl("/archivos/cv/" + nombreArchivo);
+        postulante.setCvTextoExtraido(extraccion.texto());
+        postulante.setCvProcesamientoEstado(construirEstadoCv(extraccion));
 
         return postulanteRepo.save(postulante);
     }
@@ -128,5 +131,13 @@ public class PostulanteService {
                         new RuntimeException("Perfil no encontrado"));
 
         postulanteRepo.delete(postulante);
+    }
+
+    private String construirEstadoCv(ArchivoService.ResultadoExtraccionCv extraccion) {
+        if (extraccion.observacion() == null || extraccion.observacion().isBlank()) {
+            return extraccion.estado();
+        }
+
+        return extraccion.estado() + ": " + extraccion.observacion();
     }
 }

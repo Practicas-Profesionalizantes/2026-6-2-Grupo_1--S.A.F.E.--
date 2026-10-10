@@ -8,6 +8,10 @@ public class PostulacionResponseDTO {
     private Long idPostulante;
     private Long idPuesto;
     private String nombrePuesto;
+    private String nombrePostulante;
+    private String emailPostulante;
+    private String dniPostulante;
+    private String cvUrl;
     private LocalDateTime fechaPostulacion;
     private String estado;
     private BigDecimal scoreIa;
@@ -17,6 +21,12 @@ public class PostulacionResponseDTO {
         this.idPostulante = modelo.getPostulante().getId();
         this.idPuesto = modelo.getPuesto().getId();
         this.nombrePuesto = modelo.getPuesto().getNombrePuesto();
+        if (modelo.getPostulante().getUsuario() != null) {
+            this.nombrePostulante = modelo.getPostulante().getUsuario().getNombre();
+            this.emailPostulante = modelo.getPostulante().getUsuario().getEmail();
+            this.dniPostulante = modelo.getPostulante().getUsuario().getDni();
+        }
+        this.cvUrl = modelo.getPostulante().getCvUrl();
         this.fechaPostulacion = modelo.getFechaPostulacion();
         this.estado = modelo.getEstado();
         this.scoreIa = modelo.getScoreIa();
@@ -27,6 +37,10 @@ public class PostulacionResponseDTO {
     public Long getIdPostulante() { return idPostulante; }
     public Long getIdPuesto() { return idPuesto; }
     public String getNombrePuesto() { return nombrePuesto; }
+    public String getNombrePostulante() { return nombrePostulante; }
+    public String getEmailPostulante() { return emailPostulante; }
+    public String getDniPostulante() { return dniPostulante; }
+    public String getCvUrl() { return cvUrl; }
     public LocalDateTime getFechaPostulacion() { return fechaPostulacion; }
     public String getEstado() { return estado; }
     public BigDecimal getScoreIa() { return scoreIa; }
