@@ -1,6 +1,7 @@
 package com.safe.service;
 
 import com.safe.dto.AnalisisCvResultadoDTO;
+import com.safe.dto.NotificacionWorkflowDTO;
 import com.safe.model.PostulacionId;
 import com.safe.model.PostulacionModel;
 import com.safe.model.PostulanteModel;
@@ -92,6 +93,38 @@ public class PostulacionService {
         );
     }
 
+    public PostulacionModel registrarDecisionRrhh(
+            Long idPostulante,
+            Long idPuesto,
+            Boolean cumple,
+            String observacion) {
+
+        if (idPostulante == null || idPuesto == null) {
+            throw new IllegalArgumentException("idPostulante e idPuesto son obligatorios");
+        }
+
+        if (cumple == null) {
+            throw new IllegalArgumentException("La decision de RRHH es obligatoria");
+        }
+
+        PostulacionId id = new PostulacionId(idPostulante, idPuesto);
+        PostulacionModel postulacion = postulacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Postulacion no encontrada"));
+
+        postulacion.setEstado(cumple ? "CUMPLE_CV" : "NO_CUMPLE_CV");
+        if (!estaVacio(observacion)) {
+            String observacionActual = postulacion.getObservacionesIa();
+            postulacion.setObservacionesIa(
+                    (observacionActual == null || observacionActual.isBlank() ? "" : observacionActual + "\n")
+                            + "Decision RRHH: " + observacion.trim()
+            );
+        }
+
+        PostulacionModel guardada = postulacionRepository.save(postulacion);
+        enviarNotificacionDecision(guardada, cumple);
+        return guardada;
+    }
+
     private void validarPerfilListoParaPostulacion(PostulanteModel postulante) {
         if (estaVacio(postulante.getTelefono())
                 || estaVacio(postulante.getDireccion())
@@ -108,5 +141,25 @@ public class PostulacionService {
 
     private boolean estaVacio(String value) {
         return value == null || value.isBlank();
+    }
+
+    private void enviarNotificacionDecision(PostulacionModel postulacion, boolean cumple) {
+        NotificacionWorkflowDTO dto = new NotificacionWorkflowDTO();
+        dto.setIdPostulante(postulacion.getPostulante().getId());
+        dto.setTipo(cumple ? "RESULTADO_DISPONIBLE" : "RECHAZO_INICIAL");
+        dto.setEstado("PENDIENTE_ENVIO");
+        dto.setMensaje(cumple
+                ? "Tu postulacion continua en el proceso de seleccion."
+                : "Tu postulacion no continua en esta busqueda.");
+        dto.setDetalle(cumple
+                ? "RRHH marco que el CV cumple para el puesto " + postulacion.getPuesto().getNombrePuesto() + "."
+                : "RRHH marco que el CV no cumple para el puesto " + postulacion.getPuesto().getNombrePuesto() + ".");
+        dto.setDatos(Map.of(
+                "idPuesto", postulacion.getPuesto().getId(),
+                "puesto", postulacion.getPuesto().getNombrePuesto(),
+                "estadoPostulacion", postulacion.getEstado()
+        ));
+
+        n8nWorkflowService.enviarNotificacion(dto);
     }
 }

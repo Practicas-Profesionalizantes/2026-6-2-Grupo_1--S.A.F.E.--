@@ -5,6 +5,7 @@ import com.safe.model.EvaluacionAsignadaModel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.math.BigDecimal;
 
 public class EvaluacionAsignadaResponseDTO {
 
@@ -12,6 +13,10 @@ public class EvaluacionAsignadaResponseDTO {
     private Integer idEvaluacion;
     private String nombreEvaluacion;
     private String tipoEvaluacion;
+    private String descripcionEvaluacion;
+    private Integer duracion;
+    private BigDecimal puntajeMin;
+    private BigDecimal puntajeMax;
     private Long idPostulante;
     private LocalDate fecha;
     private LocalTime horaInicio;
@@ -26,6 +31,10 @@ public class EvaluacionAsignadaResponseDTO {
         this.idEvaluacion = asignacion.getEvaluacion().getId();
         this.nombreEvaluacion = asignacion.getEvaluacion().getNombre();
         this.tipoEvaluacion = asignacion.getEvaluacion().getTipo();
+        this.descripcionEvaluacion = asignacion.getEvaluacion().getDescripcion();
+        this.duracion = asignacion.getEvaluacion().getDuracion();
+        this.puntajeMin = asignacion.getEvaluacion().getPuntajeMin();
+        this.puntajeMax = asignacion.getEvaluacion().getPuntajeMax();
         this.idPostulante = asignacion.getPostulante().getId();
         this.fecha = asignacion.getFecha();
         this.horaInicio = asignacion.getHoraInicio();
@@ -50,6 +59,22 @@ public class EvaluacionAsignadaResponseDTO {
 
     public String getTipoEvaluacion() {
         return tipoEvaluacion;
+    }
+
+    public String getDescripcionEvaluacion() {
+        return descripcionEvaluacion;
+    }
+
+    public Integer getDuracion() {
+        return duracion;
+    }
+
+    public BigDecimal getPuntajeMin() {
+        return puntajeMin;
+    }
+
+    public BigDecimal getPuntajeMax() {
+        return puntajeMax;
     }
 
     public Long getIdPostulante() {

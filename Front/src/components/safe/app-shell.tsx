@@ -3,7 +3,9 @@ import type { ReactNode } from "react";
 import {
   Bell,
   BriefcaseBusiness,
+  CalendarClock,
   ClipboardList,
+  History,
   LayoutDashboard,
   LogOut,
   Search,
@@ -28,7 +30,9 @@ const navRRHH = [
   { to: "/rrhh/postulaciones", label: "Postulaciones", icon: Users },
   { to: "/rrhh/puestos", label: "Puestos", icon: BriefcaseBusiness },
   { to: "/rrhh/evaluaciones", label: "Evaluaciones", icon: ClipboardList },
+  { to: "/rrhh/entrevistas", label: "Entrevistas", icon: CalendarClock },
   { to: "/rrhh/ranking", label: "Ranking IA", icon: Trophy },
+  { to: "/rrhh/historial", label: "Historial", icon: History },
 ];
 
 export function AppShell({

@@ -78,6 +78,10 @@ export type EvaluacionAsignadaApi = {
   idEvaluacion: number;
   nombreEvaluacion: string;
   tipoEvaluacion: string;
+  descripcionEvaluacion?: string;
+  duracion?: number;
+  puntajeMin?: number;
+  puntajeMax?: number;
   idPostulante: number;
   fecha?: string;
   horaInicio?: string;
@@ -88,6 +92,15 @@ export type EvaluacionAsignadaApi = {
   observaciones?: string;
 };
 
+export type PreguntaApi = {
+  id: number;
+  idEvaluacion: number;
+  pregunta: string;
+  tipo: string;
+  respuestaCorrecta?: string;
+  peso?: number;
+};
+
 export type RespuestaEvaluacionApi = {
   id: number;
   idAsignacion: number;
@@ -95,6 +108,36 @@ export type RespuestaEvaluacionApi = {
   pregunta: string;
   respuesta: string;
   fechaRespuesta?: string;
+};
+
+export type RankingApi = {
+  id: number;
+  idPostulante: number;
+  promedioFinal: number;
+};
+
+export type EntrevistaApi = {
+  id: number;
+  idPostulante: number;
+  nombrePostulante?: string;
+  emailPostulante?: string;
+  idPuesto?: number;
+  nombrePuesto?: string;
+  fecha: string;
+  hora: string;
+  modalidad?: string;
+  ubicacion?: string;
+  estado: string;
+  observaciones?: string;
+  resultado?: string;
+  fechaCreacion?: string;
+};
+
+export type HistorialPostulanteApi = {
+  postulante: PostulanteApi;
+  postulaciones: PostulacionApi[];
+  evaluaciones: EvaluacionAsignadaApi[];
+  entrevistas: EntrevistaApi[];
 };
 
 type RequestOptions = Omit<RequestInit, "body"> & {
@@ -300,6 +343,21 @@ export async function listarPostulacionesAdmin() {
   return response.data ?? [];
 }
 
+export async function registrarDecisionPostulacion(
+  idPostulante: number,
+  idPuesto: number,
+  data: { cumple: boolean; observacion?: string },
+) {
+  const response = await apiRequest<ApiEnvelope<PostulacionApi>>(
+    `/admin/postulaciones/${idPostulante}/${idPuesto}/decision`,
+    {
+      method: "PATCH",
+      body: data,
+    },
+  );
+  return response.data;
+}
+
 export async function listarEvaluaciones() {
   const response = await apiRequest<ApiEnvelope<EvaluacionApi[]>>("/admin/evaluaciones");
   return response.data ?? [];
@@ -327,6 +385,38 @@ export async function eliminarEvaluacion(id: number) {
   });
 }
 
+export async function listarPreguntasEvaluacion(idEvaluacion: number) {
+  const response = await apiRequest<ApiEnvelope<PreguntaApi[]>>(
+    `/admin/evaluaciones/${idEvaluacion}/preguntas`,
+  );
+  return response.data ?? [];
+}
+
+export async function crearPreguntaEvaluacion(
+  idEvaluacion: number,
+  data: {
+    pregunta: string;
+    tipo: string;
+    respuestaCorrecta: string;
+    peso?: number;
+  },
+) {
+  const response = await apiRequest<ApiEnvelope<PreguntaApi>>(
+    `/admin/evaluaciones/${idEvaluacion}/preguntas`,
+    {
+      method: "POST",
+      body: data,
+    },
+  );
+  return response.data;
+}
+
+export async function eliminarPreguntaEvaluacion(idPregunta: number) {
+  return apiRequest<ApiEnvelope<unknown>>(`/admin/evaluaciones/preguntas/${idPregunta}`, {
+    method: "DELETE",
+  });
+}
+
 export async function listarEvaluacionesAsignadas() {
   const response = await apiRequest<ApiEnvelope<EvaluacionAsignadaApi[]>>(
     "/postulante/evaluaciones/asignadas",
@@ -334,9 +424,23 @@ export async function listarEvaluacionesAsignadas() {
   return response.data ?? [];
 }
 
+export async function listarPreguntasParaRendir(idAsignacion: number) {
+  const response = await apiRequest<ApiEnvelope<PreguntaApi[]>>(
+    `/postulante/evaluaciones/asignadas/${idAsignacion}/preguntas`,
+  );
+  return response.data ?? [];
+}
+
 export async function listarTodasAsignaciones() {
   const response = await apiRequest<ApiEnvelope<EvaluacionAsignadaApi[]>>(
     "/admin/evaluaciones/asignaciones",
+  );
+  return response.data ?? [];
+}
+
+export async function listarRespuestasAsignacion(idAsignacion: number) {
+  const response = await apiRequest<ApiEnvelope<RespuestaEvaluacionApi[]>>(
+    `/admin/evaluaciones/asignaciones/${idAsignacion}/respuestas`,
   );
   return response.data ?? [];
 }
@@ -362,13 +466,84 @@ export async function asignarEvaluacion(data: {
 export async function guardarRespuestasEvaluacion(
   idAsignacion: number,
   respuestas: Array<{ idPregunta: number; respuesta: string }>,
+  envioAutomatico = false,
 ) {
   const response = await apiRequest<ApiEnvelope<RespuestaEvaluacionApi[]>>(
     `/postulante/evaluaciones/asignadas/${idAsignacion}/respuestas`,
     {
       method: "POST",
-      body: { respuestas },
+      body: { respuestas, envioAutomatico },
     },
   );
   return response.data ?? [];
+}
+
+export async function listarRanking() {
+  const response = await apiRequest<ApiEnvelope<RankingApi[]>>("/ranking");
+  return response.data ?? [];
+}
+
+export async function listarEntrevistas() {
+  const response = await apiRequest<ApiEnvelope<EntrevistaApi[]>>("/admin/entrevistas");
+  return response.data ?? [];
+}
+
+export async function crearEntrevista(data: {
+  idPostulante: number;
+  idPuesto?: number;
+  fecha: string;
+  hora: string;
+  modalidad: string;
+  ubicacion?: string;
+  estado?: string;
+  observaciones?: string;
+  resultado?: string;
+}) {
+  const response = await apiRequest<ApiEnvelope<EntrevistaApi>>("/admin/entrevistas", {
+    method: "POST",
+    body: data,
+  });
+  return response.data;
+}
+
+export async function actualizarEntrevista(id: number, data: {
+  idPostulante: number;
+  idPuesto?: number;
+  fecha: string;
+  hora: string;
+  modalidad: string;
+  ubicacion?: string;
+  estado?: string;
+  observaciones?: string;
+  resultado?: string;
+}) {
+  const response = await apiRequest<ApiEnvelope<EntrevistaApi>>(`/admin/entrevistas/${id}`, {
+    method: "PUT",
+    body: data,
+  });
+  return response.data;
+}
+
+export async function cambiarEstadoEntrevista(
+  id: number,
+  data: { estado: string; resultado?: string },
+) {
+  const response = await apiRequest<ApiEnvelope<EntrevistaApi>>(`/admin/entrevistas/${id}/estado`, {
+    method: "PATCH",
+    body: data,
+  });
+  return response.data;
+}
+
+export async function eliminarEntrevista(id: number) {
+  return apiRequest<ApiEnvelope<unknown>>(`/admin/entrevistas/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export async function obtenerHistorialPostulante(idPostulante: number) {
+  const response = await apiRequest<ApiEnvelope<HistorialPostulanteApi>>(
+    `/admin/postulantes/${idPostulante}/historial`,
+  );
+  return response.data;
 }

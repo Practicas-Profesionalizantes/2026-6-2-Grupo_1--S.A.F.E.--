@@ -296,7 +296,15 @@ El backend ya incluye `respuestaPostulante` por pregunta. Si una pregunta no fue
 
 ### Entrega de respuestas desde el front
 
-El front puede guardar respuestas del postulante con:
+El front obtiene las preguntas reales de la evaluacion asignada con:
+
+```http
+GET /postulante/evaluaciones/asignadas/{idAsignacion}/preguntas
+```
+
+Este endpoint no devuelve `respuestaCorrecta`, para no exponer la solucion al postulante.
+
+Luego guarda las respuestas del postulante con:
 
 ```http
 POST /postulante/evaluaciones/asignadas/{idAsignacion}/respuestas
@@ -315,7 +323,17 @@ Body:
 }
 ```
 
-Al guardar respuestas, SAFE marca la asignacion como `RESPONDIDA` y dispara automaticamente el workflow de correccion si `n8n.webhook.correccion-evaluacion-url` esta configurado.
+Al guardar respuestas, SAFE valida que la evaluacion pertenezca al postulante autenticado, valida fecha y horario, marca la asignacion como `RESPONDIDA` y dispara automaticamente el workflow de correccion si `n8n.webhook.correccion-evaluacion-url` esta configurado.
+
+El front muestra cuenta regresiva hasta `horaFin`. Cuando faltan 5 minutos muestra una advertencia al postulante. Al llegar a `horaFin`, bloquea la edicion y envia automaticamente las respuestas cargadas hasta ese momento. Las preguntas no respondidas llegan a n8n como `respuestaPostulante` vacia y deben puntuar 0.
+
+RRHH puede cargar preguntas desde el panel o usando:
+
+```http
+POST /admin/evaluaciones/{idEvaluacion}/preguntas
+GET /admin/evaluaciones/{idEvaluacion}/preguntas
+DELETE /admin/evaluaciones/preguntas/{idPregunta}
+```
 
 ### Callback que debe llamar n8n
 
@@ -506,6 +524,23 @@ EVALUACION_DESAPROBADA
 RESULTADO_DISPONIBLE
 ENTREVISTA_AGENDADA (opcional)
 ```
+
+RRHH ya puede registrar la decision inicial de CV desde el panel de postulaciones:
+
+```http
+PATCH /admin/postulaciones/{idPostulante}/{idPuesto}/decision
+```
+
+Body:
+
+```json
+{
+  "cumple": true,
+  "observacion": "Perfil compatible para continuar."
+}
+```
+
+Si `cumple` es `false`, SAFE marca la postulacion como `NO_CUMPLE_CV` y deja preparado el envio de correo tipo `RECHAZO_INICIAL`. Si `cumple` es `true`, marca la postulacion como `CUMPLE_CV` y deja preparado el aviso tipo `RESULTADO_DISPONIBLE`. Si `n8n.webhook.notificacion-url` no esta configurado, solo se guarda el estado.
 
 ### Switch en n8n
 

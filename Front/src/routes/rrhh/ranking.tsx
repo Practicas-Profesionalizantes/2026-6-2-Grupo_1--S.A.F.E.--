@@ -1,9 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Trophy } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { RefreshCw, Trophy } from "lucide-react";
 import { AppShell } from "@/components/safe/app-shell";
-import { Panel, ScoreBar } from "@/components/safe/pieces";
+import { EstadoBadge, Panel, ScoreBar } from "@/components/safe/pieces";
 import { Reveal } from "@/components/safe/reveal";
-import { ranking } from "@/lib/safe-data";
+import {
+  getStoredUser,
+  listarPostulacionesAdmin,
+  listarPostulantesAdmin,
+  listarRanking,
+} from "@/lib/api";
+import type { PostulacionApi, PostulanteApi, RankingApi, Usuario } from "@/lib/api";
 
 export const Route = createFileRoute("/rrhh/ranking")({
   head: () => ({
@@ -12,10 +19,10 @@ export const Route = createFileRoute("/rrhh/ranking")({
       {
         name: "description",
         content:
-          "Ranking automático de postulantes según score de CV, resultados de evaluaciones y compatibilidad con el puesto.",
+          "Ranking automatico de postulantes segun score de CV, resultados de evaluaciones y compatibilidad con el puesto.",
       },
       { property: "og:title", content: "Ranking de candidatos | SAFE RRHH" },
-      { property: "og:description", content: "Ranking automático asistido por IA para apoyar a RRHH." },
+      { property: "og:description", content: "Ranking automatico asistido por IA para apoyar a RRHH." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -23,70 +30,165 @@ export const Route = createFileRoute("/rrhh/ranking")({
   component: Ranking,
 });
 
+function score(value?: number) {
+  return Math.max(0, Math.min(100, Number(value ?? 0)));
+}
+
 function Ranking() {
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [ranking, setRanking] = useState<RankingApi[]>([]);
+  const [postulantes, setPostulantes] = useState<PostulanteApi[]>([]);
+  const [postulaciones, setPostulaciones] = useState<PostulacionApi[]>([]);
+  const [mensaje, setMensaje] = useState("");
+  const [cargando, setCargando] = useState(true);
+
+  async function cargarDatos() {
+    setCargando(true);
+    setMensaje("");
+
+    try {
+      const [rankingData, postulantesData, postulacionesData] = await Promise.all([
+        listarRanking(),
+        listarPostulantesAdmin(),
+        listarPostulacionesAdmin(),
+      ]);
+      setRanking(rankingData);
+      setPostulantes(postulantesData);
+      setPostulaciones(postulacionesData);
+    } catch (err) {
+      setMensaje(err instanceof Error ? err.message : "No se pudo cargar el ranking");
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  useEffect(() => {
+    setUsuario(getStoredUser());
+    void cargarDatos();
+  }, []);
+
+  const filas = useMemo(
+    () =>
+      ranking.map((item, index) => {
+        const postulante = postulantes.find((p) => p.id === item.idPostulante);
+        const postulacion = postulaciones.find((p) => p.idPostulante === item.idPostulante);
+
+        return {
+          ...item,
+          posicion: index + 1,
+          nombre: postulante?.nombre ?? postulacion?.nombrePostulante ?? `Postulante ${item.idPostulante}`,
+          email: postulante?.email ?? postulacion?.emailPostulante ?? "Sin email",
+          puesto: postulacion?.nombrePuesto ?? "Sin puesto vinculado",
+          estado: postulacion?.estado ?? "RANKEADO",
+          scoreCv: postulacion?.scoreIa,
+        };
+      }),
+    [postulaciones, postulantes, ranking],
+  );
+
+  const promedioGeneral = filas.length
+    ? Math.round(filas.reduce((total, item) => total + score(item.promedioFinal), 0) / filas.length)
+    : 0;
+
   return (
     <AppShell
       titulo="Ranking de candidatos"
-      subtitulo="Generado a partir de evaluaciones y análisis de IA"
-      usuario="Ana Torres"
+      subtitulo="Datos reales recibidos desde el workflow de ranking"
+      usuario={usuario?.nombre ?? "RRHH"}
       rol="RRHH"
     >
+      {mensaje ? (
+        <div className="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {mensaje}
+        </div>
+      ) : null}
+
       <div className="grid gap-6 xl:grid-cols-3">
         <Reveal className="xl:col-span-2">
-          <Panel titulo="Posiciones">
-            <ul className="space-y-3">
-              {ranking.map((r, i) => (
-                <li
-                  key={r.posicion}
-                  className="lift flex flex-wrap items-center gap-4 rounded-xl border border-border bg-surface-2/45 p-4"
-                >
-                  <span
-                    className={`grid size-10 shrink-0 place-items-center rounded-xl font-display font-semibold ${
-                      i === 0
-                        ? "bg-[image:var(--gradient-primary)] text-primary-foreground glow-shadow"
-                        : "border border-border bg-surface text-muted-foreground"
-                    }`}
+          <Panel
+            titulo="Posiciones"
+            accion={
+              <button
+                onClick={() => void cargarDatos()}
+                className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+              >
+                <RefreshCw className="size-4" /> Actualizar
+              </button>
+            }
+          >
+            {cargando ? (
+              <p className="text-sm text-muted-foreground">Cargando ranking...</p>
+            ) : filas.length ? (
+              <ul className="space-y-3">
+                {filas.map((item) => (
+                  <li
+                    key={`${item.id}-${item.idPostulante}`}
+                    className="lift flex flex-wrap items-center gap-4 rounded-xl border border-border bg-surface-2/45 p-4"
                   >
-                    {r.posicion}
-                  </span>
-                  <div className="min-w-40 flex-1">
-                    <p className="font-medium">{r.postulante}</p>
-                    <p className="text-sm text-muted-foreground">{r.puesto}</p>
-                  </div>
-                  <div className="text-sm">
-                    <p className="text-muted-foreground">Score CV</p>
-                    <ScoreBar value={r.scoreCV} />
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">Puntaje final</p>
-                    <p className="font-display text-2xl font-semibold gradient-text">{r.puntaje}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                    <span
+                      className={`grid size-10 shrink-0 place-items-center rounded-xl font-display font-semibold ${
+                        item.posicion === 1
+                          ? "bg-[image:var(--gradient-primary)] text-primary-foreground glow-shadow"
+                          : "border border-border bg-surface text-muted-foreground"
+                      }`}
+                    >
+                      {item.posicion}
+                    </span>
+                    <div className="min-w-44 flex-1">
+                      <p className="font-medium">{item.nombre}</p>
+                      <p className="text-sm text-muted-foreground">{item.email}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{item.puesto}</p>
+                    </div>
+                    <div className="text-sm">
+                      <p className="text-muted-foreground">Score CV</p>
+                      <ScoreBar value={score(item.scoreCv)} />
+                    </div>
+                    <div>
+                      <p className="mb-1 text-xs text-muted-foreground">Estado</p>
+                      <EstadoBadge estado={item.estado} />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-muted-foreground">Puntaje final</p>
+                      <p className="font-display text-2xl font-semibold gradient-text">
+                        {score(item.promedioFinal)}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="rounded-xl border border-border bg-surface-2/45 p-4 text-sm text-muted-foreground">
+                Todavia no hay ranking guardado. Cuando n8n devuelva el resultado, aparecera aca.
+              </p>
+            )}
           </Panel>
         </Reveal>
 
         <Reveal delay={100}>
-          <Panel titulo="Criterios del ranking" className="h-full">
-            <ul className="space-y-3 text-sm text-muted-foreground">
+          <Panel titulo="Resumen" className="h-full">
+            <div className="grid gap-3 text-sm">
+              <div className="rounded-xl border border-border bg-surface-2/45 p-4">
+                <p className="text-muted-foreground">Candidatos rankeados</p>
+                <p className="mt-1 font-display text-3xl font-semibold gradient-text">{filas.length}</p>
+              </div>
+              <div className="rounded-xl border border-border bg-surface-2/45 p-4">
+                <p className="text-muted-foreground">Promedio general</p>
+                <p className="mt-1 font-display text-3xl font-semibold gradient-text">{promedioGeneral}</p>
+              </div>
+            </div>
+            <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
               {[
                 "Score IA del CV",
-                "Puntajes obtenidos en evaluaciones",
+                "Puntajes de evaluaciones",
                 "Compatibilidad con el puesto",
-                "Experiencia laboral",
-                "Resultado de entrevistas",
-              ].map((c) => (
-                <li key={c} className="flex items-start gap-2">
+                "Resultado de entrevistas cuando este disponible",
+              ].map((criterio) => (
+                <li key={criterio} className="flex items-start gap-2">
                   <Trophy className="mt-0.5 size-4 shrink-0 text-primary" />
-                  {c}
+                  {criterio}
                 </li>
               ))}
             </ul>
-            <p className="mt-6 rounded-xl border border-accent/25 bg-accent/8 p-4 text-sm text-muted-foreground">
-              La IA asiste el proceso, pero la decisión final de contratación es siempre de Recursos
-              Humanos.
-            </p>
           </Panel>
         </Reveal>
       </div>

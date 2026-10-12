@@ -18,7 +18,9 @@ import { Route as PuestosRouteImport } from './routes/puestos'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as EvaluacionIdRouteImport } from './routes/evaluacion.$id'
 import { Route as RrhhIndexRouteImport } from './routes/rrhh/index'
+import { Route as RrhhEntrevistasRouteImport } from './routes/rrhh/entrevistas'
 import { Route as RrhhEvaluacionesRouteImport } from './routes/rrhh/evaluaciones'
+import { Route as RrhhHistorialRouteImport } from './routes/rrhh/historial'
 import { Route as RrhhPostulacionesRouteImport } from './routes/rrhh/postulaciones'
 import { Route as RrhhPuestosRouteImport } from './routes/rrhh/puestos'
 import { Route as RrhhRankingRouteImport } from './routes/rrhh/ranking'
@@ -68,9 +70,19 @@ const RrhhIndexRoute = RrhhIndexRouteImport.update({
   path: '/rrhh/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RrhhEntrevistasRoute = RrhhEntrevistasRouteImport.update({
+  id: '/rrhh/entrevistas',
+  path: '/rrhh/entrevistas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RrhhEvaluacionesRoute = RrhhEvaluacionesRouteImport.update({
   id: '/rrhh/evaluaciones',
   path: '/rrhh/evaluaciones',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RrhhHistorialRoute = RrhhHistorialRouteImport.update({
+  id: '/rrhh/historial',
+  path: '/rrhh/historial',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RrhhPostulacionesRoute = RrhhPostulacionesRouteImport.update({
@@ -98,7 +110,9 @@ export interface FileRoutesByFullPath {
   '/puestos': typeof PuestosRoute
   '/registro': typeof RegistroRoute
   '/evaluacion/$id': typeof EvaluacionIdRoute
+  '/rrhh/entrevistas': typeof RrhhEntrevistasRoute
   '/rrhh/evaluaciones': typeof RrhhEvaluacionesRoute
+  '/rrhh/historial': typeof RrhhHistorialRoute
   '/rrhh/postulaciones': typeof RrhhPostulacionesRoute
   '/rrhh/puestos': typeof RrhhPuestosRoute
   '/rrhh/ranking': typeof RrhhRankingRoute
@@ -113,7 +127,9 @@ export interface FileRoutesByTo {
   '/puestos': typeof PuestosRoute
   '/registro': typeof RegistroRoute
   '/evaluacion/$id': typeof EvaluacionIdRoute
+  '/rrhh/entrevistas': typeof RrhhEntrevistasRoute
   '/rrhh/evaluaciones': typeof RrhhEvaluacionesRoute
+  '/rrhh/historial': typeof RrhhHistorialRoute
   '/rrhh/postulaciones': typeof RrhhPostulacionesRoute
   '/rrhh/puestos': typeof RrhhPuestosRoute
   '/rrhh/ranking': typeof RrhhRankingRoute
@@ -129,7 +145,9 @@ export interface FileRoutesById {
   '/puestos': typeof PuestosRoute
   '/registro': typeof RegistroRoute
   '/evaluacion/$id': typeof EvaluacionIdRoute
+  '/rrhh/entrevistas': typeof RrhhEntrevistasRoute
   '/rrhh/evaluaciones': typeof RrhhEvaluacionesRoute
+  '/rrhh/historial': typeof RrhhHistorialRoute
   '/rrhh/postulaciones': typeof RrhhPostulacionesRoute
   '/rrhh/puestos': typeof RrhhPuestosRoute
   '/rrhh/ranking': typeof RrhhRankingRoute
@@ -146,7 +164,9 @@ export interface FileRouteTypes {
     | '/puestos'
     | '/registro'
     | '/evaluacion/$id'
+    | '/rrhh/entrevistas'
     | '/rrhh/evaluaciones'
+    | '/rrhh/historial'
     | '/rrhh/postulaciones'
     | '/rrhh/puestos'
     | '/rrhh/ranking'
@@ -161,7 +181,9 @@ export interface FileRouteTypes {
     | '/puestos'
     | '/registro'
     | '/evaluacion/$id'
+    | '/rrhh/entrevistas'
     | '/rrhh/evaluaciones'
+    | '/rrhh/historial'
     | '/rrhh/postulaciones'
     | '/rrhh/puestos'
     | '/rrhh/ranking'
@@ -176,7 +198,9 @@ export interface FileRouteTypes {
     | '/puestos'
     | '/registro'
     | '/evaluacion/$id'
+    | '/rrhh/entrevistas'
     | '/rrhh/evaluaciones'
+    | '/rrhh/historial'
     | '/rrhh/postulaciones'
     | '/rrhh/puestos'
     | '/rrhh/ranking'
@@ -192,7 +216,9 @@ export interface RootRouteChildren {
   PuestosRoute: typeof PuestosRoute
   RegistroRoute: typeof RegistroRoute
   EvaluacionIdRoute: typeof EvaluacionIdRoute
+  RrhhEntrevistasRoute: typeof RrhhEntrevistasRoute
   RrhhEvaluacionesRoute: typeof RrhhEvaluacionesRoute
+  RrhhHistorialRoute: typeof RrhhHistorialRoute
   RrhhPostulacionesRoute: typeof RrhhPostulacionesRoute
   RrhhPuestosRoute: typeof RrhhPuestosRoute
   RrhhRankingRoute: typeof RrhhRankingRoute
@@ -264,11 +290,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RrhhIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rrhh/entrevistas': {
+      id: '/rrhh/entrevistas'
+      path: '/rrhh/entrevistas'
+      fullPath: '/rrhh/entrevistas'
+      preLoaderRoute: typeof RrhhEntrevistasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rrhh/evaluaciones': {
       id: '/rrhh/evaluaciones'
       path: '/rrhh/evaluaciones'
       fullPath: '/rrhh/evaluaciones'
       preLoaderRoute: typeof RrhhEvaluacionesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rrhh/historial': {
+      id: '/rrhh/historial'
+      path: '/rrhh/historial'
+      fullPath: '/rrhh/historial'
+      preLoaderRoute: typeof RrhhHistorialRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rrhh/postulaciones': {
@@ -304,7 +344,9 @@ const rootRouteChildren: RootRouteChildren = {
   PuestosRoute: PuestosRoute,
   RegistroRoute: RegistroRoute,
   EvaluacionIdRoute: EvaluacionIdRoute,
+  RrhhEntrevistasRoute: RrhhEntrevistasRoute,
   RrhhEvaluacionesRoute: RrhhEvaluacionesRoute,
+  RrhhHistorialRoute: RrhhHistorialRoute,
   RrhhPostulacionesRoute: RrhhPostulacionesRoute,
   RrhhPuestosRoute: RrhhPuestosRoute,
   RrhhRankingRoute: RrhhRankingRoute,

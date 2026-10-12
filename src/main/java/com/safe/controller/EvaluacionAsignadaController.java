@@ -2,8 +2,10 @@ package com.safe.controller;
 
 import com.safe.dto.EvaluacionAsignadaRequestDTO;
 import com.safe.dto.EvaluacionAsignadaResponseDTO;
+import com.safe.dto.RespuestaEvaluacionResponseDTO;
 import com.safe.model.EvaluacionAsignadaModel;
 import com.safe.service.EvaluacionAsignadaService;
+import com.safe.service.RespuestaEvaluacionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,9 +26,13 @@ import java.util.Map;
 public class EvaluacionAsignadaController {
 
     private final EvaluacionAsignadaService evaluacionAsignadaService;
+    private final RespuestaEvaluacionService respuestaEvaluacionService;
 
-    public EvaluacionAsignadaController(EvaluacionAsignadaService evaluacionAsignadaService) {
+    public EvaluacionAsignadaController(
+            EvaluacionAsignadaService evaluacionAsignadaService,
+            RespuestaEvaluacionService respuestaEvaluacionService) {
         this.evaluacionAsignadaService = evaluacionAsignadaService;
+        this.respuestaEvaluacionService = respuestaEvaluacionService;
     }
 
     @PostMapping("/admin/evaluaciones/asignaciones")
@@ -65,6 +71,21 @@ public class EvaluacionAsignadaController {
         response.put("status", "ok");
         response.put("message", "Asignaciones listadas correctamente");
         response.put("data", asignaciones);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/admin/evaluaciones/asignaciones/{id}/respuestas")
+    public ResponseEntity<Map<String, Object>> listarRespuestas(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        List<RespuestaEvaluacionResponseDTO> respuestas = respuestaEvaluacionService.listarPorAsignacion(id)
+                .stream()
+                .map(RespuestaEvaluacionResponseDTO::new)
+                .toList();
+
+        response.put("status", "ok");
+        response.put("message", "Respuestas de evaluacion listadas correctamente");
+        response.put("data", respuestas);
 
         return ResponseEntity.ok(response);
     }

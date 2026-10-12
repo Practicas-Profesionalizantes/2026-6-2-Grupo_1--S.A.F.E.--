@@ -1,11 +1,18 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { BrainCircuit, CheckCircle2, FileText, RefreshCw, Search, XCircle } from "lucide-react";
+import { BrainCircuit, CalendarClock, CheckCircle2, FileText, RefreshCw, Search, XCircle } from "lucide-react";
 import { AppShell } from "@/components/safe/app-shell";
 import { EstadoBadge, Panel, ScoreBar } from "@/components/safe/pieces";
 import { Reveal } from "@/components/safe/reveal";
-import { archivoUrl, getStoredUser, listarPostulacionesAdmin } from "@/lib/api";
-import type { PostulacionApi, Usuario } from "@/lib/api";
+import {
+  archivoUrl,
+  asignarEvaluacion,
+  getStoredUser,
+  listarEvaluaciones,
+  listarPostulacionesAdmin,
+  registrarDecisionPostulacion,
+} from "@/lib/api";
+import type { EvaluacionApi, PostulacionApi, Usuario } from "@/lib/api";
 
 export const Route = createFileRoute("/rrhh/postulaciones")({
   head: () => ({
@@ -43,14 +50,26 @@ function fechaVisible(value?: string) {
 function PostulacionesRRHH() {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [postulaciones, setPostulaciones] = useState<PostulacionApi[]>([]);
+  const [evaluaciones, setEvaluaciones] = useState<EvaluacionApi[]>([]);
   const [seleccionado, setSeleccionado] = useState<PostulacionApi | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [mensajeOk, setMensajeOk] = useState("");
   const [cargando, setCargando] = useState(true);
+  const [guardandoDecision, setGuardandoDecision] = useState(false);
+  const [asignandoEvaluacion, setAsignandoEvaluacion] = useState(false);
+  const [asignacion, setAsignacion] = useState({
+    idEvaluacion: "",
+    fecha: "",
+    horaInicio: "",
+    horaFin: "",
+    observaciones: "",
+  });
 
   async function cargarPostulaciones() {
     setCargando(true);
     setMensaje("");
+    setMensajeOk("");
 
     try {
       const data = await listarPostulacionesAdmin();
@@ -68,9 +87,78 @@ function PostulacionesRRHH() {
     }
   }
 
+  async function cargarEvaluaciones() {
+    try {
+      const data = await listarEvaluaciones();
+      setEvaluaciones(data);
+      if (!asignacion.idEvaluacion && data.length) {
+        setAsignacion((actual) => ({ ...actual, idEvaluacion: String(data[0].id) }));
+      }
+    } catch (err) {
+      setMensaje(err instanceof Error ? err.message : "No se pudieron cargar las evaluaciones");
+    }
+  }
+
+  async function registrarDecision(cumple: boolean) {
+    if (!seleccionado) return;
+
+    setMensaje("");
+    setMensajeOk("");
+    setGuardandoDecision(true);
+
+    try {
+      const actualizada = await registrarDecisionPostulacion(
+        seleccionado.idPostulante,
+        seleccionado.idPuesto,
+        { cumple },
+      );
+
+      await cargarPostulaciones();
+      if (actualizada) {
+        setSeleccionado(actualizada);
+      }
+      setMensajeOk(cumple ? "Postulacion marcada como cumple." : "Postulacion marcada como no cumple.");
+    } catch (err) {
+      setMensaje(err instanceof Error ? err.message : "No se pudo registrar la decision");
+    } finally {
+      setGuardandoDecision(false);
+    }
+  }
+
+  async function asignarEvaluacionSeleccionada() {
+    if (!seleccionado) return;
+    setMensaje("");
+    setMensajeOk("");
+    setAsignandoEvaluacion(true);
+
+    try {
+      await asignarEvaluacion({
+        idEvaluacion: Number(asignacion.idEvaluacion),
+        idPostulante: seleccionado.idPostulante,
+        fecha: asignacion.fecha,
+        horaInicio: asignacion.horaInicio,
+        horaFin: asignacion.horaFin,
+        observaciones: asignacion.observaciones || `Asignada desde postulacion al puesto ${seleccionado.nombrePuesto}`,
+      });
+      setAsignacion((actual) => ({
+        ...actual,
+        fecha: "",
+        horaInicio: "",
+        horaFin: "",
+        observaciones: "",
+      }));
+      setMensajeOk("Evaluacion asignada correctamente.");
+    } catch (err) {
+      setMensaje(err instanceof Error ? err.message : "No se pudo asignar la evaluacion");
+    } finally {
+      setAsignandoEvaluacion(false);
+    }
+  }
+
   useEffect(() => {
     setUsuario(getStoredUser());
     void cargarPostulaciones();
+    void cargarEvaluaciones();
   }, []);
 
   const filtradas = useMemo(() => {
@@ -100,6 +188,11 @@ function PostulacionesRRHH() {
       {mensaje ? (
         <div className="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {mensaje}
+        </div>
+      ) : null}
+      {mensajeOk ? (
+        <div className="mb-5 rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
+          {mensajeOk}
         </div>
       ) : null}
 
@@ -260,14 +353,88 @@ function PostulacionesRRHH() {
                 <div>
                   <p className="text-sm text-muted-foreground">Decision interna de RRHH</p>
                   <div className="mt-2 grid grid-cols-2 gap-3">
-                    <button className="inline-flex items-center justify-center gap-2 rounded-lg border border-success/35 bg-success/12 px-4 py-2.5 text-sm font-medium text-success transition-transform duration-300 hover:-translate-y-0.5">
+                    <button
+                      onClick={() => void registrarDecision(true)}
+                      disabled={guardandoDecision}
+                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-success/35 bg-success/12 px-4 py-2.5 text-sm font-medium text-success transition-transform duration-300 hover:-translate-y-0.5 disabled:opacity-60"
+                    >
                       <CheckCircle2 className="size-4" /> Cumple
                     </button>
-                    <button className="inline-flex items-center justify-center gap-2 rounded-lg border border-destructive/35 bg-destructive/12 px-4 py-2.5 text-sm font-medium text-destructive transition-transform duration-300 hover:-translate-y-0.5">
+                    <button
+                      onClick={() => void registrarDecision(false)}
+                      disabled={guardandoDecision}
+                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-destructive/35 bg-destructive/12 px-4 py-2.5 text-sm font-medium text-destructive transition-transform duration-300 hover:-translate-y-0.5 disabled:opacity-60"
+                    >
                       <XCircle className="size-4" /> No cumple
                     </button>
                   </div>
                 </div>
+
+                {seleccionado.estado === "CUMPLE_CV" ? (
+                  <div className="rounded-xl border border-border bg-surface-2/45 p-4">
+                    <p className="flex items-center gap-2 text-sm font-medium">
+                      <CalendarClock className="size-4 text-primary" /> Asignar evaluacion
+                    </p>
+                    <div className="mt-3 space-y-3 text-sm">
+                      <select
+                        value={asignacion.idEvaluacion}
+                        onChange={(event) =>
+                          setAsignacion((actual) => ({ ...actual, idEvaluacion: event.target.value }))
+                        }
+                        className="h-10 w-full rounded-lg border border-input bg-surface-2/60 px-3 outline-none focus:ring-2 focus:ring-ring/60"
+                      >
+                        <option value="">Seleccionar evaluacion</option>
+                        {evaluaciones.map((evaluacion) => (
+                          <option key={evaluacion.id} value={evaluacion.id}>
+                            {evaluacion.nombre}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="grid grid-cols-3 gap-2">
+                        <input
+                          type="date"
+                          value={asignacion.fecha}
+                          onChange={(event) =>
+                            setAsignacion((actual) => ({ ...actual, fecha: event.target.value }))
+                          }
+                          className="h-10 rounded-lg border border-input bg-surface-2/60 px-3 outline-none focus:ring-2 focus:ring-ring/60"
+                        />
+                        <input
+                          type="time"
+                          value={asignacion.horaInicio}
+                          onChange={(event) =>
+                            setAsignacion((actual) => ({ ...actual, horaInicio: event.target.value }))
+                          }
+                          className="h-10 rounded-lg border border-input bg-surface-2/60 px-3 outline-none focus:ring-2 focus:ring-ring/60"
+                        />
+                        <input
+                          type="time"
+                          value={asignacion.horaFin}
+                          onChange={(event) =>
+                            setAsignacion((actual) => ({ ...actual, horaFin: event.target.value }))
+                          }
+                          className="h-10 rounded-lg border border-input bg-surface-2/60 px-3 outline-none focus:ring-2 focus:ring-ring/60"
+                        />
+                      </div>
+                      <textarea
+                        rows={2}
+                        value={asignacion.observaciones}
+                        onChange={(event) =>
+                          setAsignacion((actual) => ({ ...actual, observaciones: event.target.value }))
+                        }
+                        placeholder="Observaciones para la asignacion"
+                        className="w-full rounded-lg border border-input bg-surface-2/60 p-3 outline-none focus:ring-2 focus:ring-ring/60"
+                      />
+                      <button
+                        onClick={() => void asignarEvaluacionSeleccionada()}
+                        disabled={asignandoEvaluacion || !asignacion.idEvaluacion}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[image:var(--gradient-primary)] px-4 py-2.5 font-semibold text-primary-foreground transition-transform duration-300 hover:-translate-y-0.5 disabled:opacity-60"
+                      >
+                        <CalendarClock className="size-4" /> Asignar evaluacion
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">Selecciona una postulacion para ver el detalle.</p>
