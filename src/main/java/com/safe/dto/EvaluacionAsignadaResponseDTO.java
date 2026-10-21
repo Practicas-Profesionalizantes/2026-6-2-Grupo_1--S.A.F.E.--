@@ -8,6 +8,12 @@ import java.time.LocalTime;
 import java.math.BigDecimal;
 
 public class EvaluacionAsignadaResponseDTO {
+    private Long idPuesto;
+    private BigDecimal puntajeTotal;
+    private BigDecimal puntajeMaxResultado;
+    public Long getIdPuesto() { return idPuesto; }
+    public BigDecimal getPuntajeTotal() { return puntajeTotal; }
+    public BigDecimal getPuntajeMaxResultado() { return puntajeMaxResultado; }
 
     private Long id;
     private Integer idEvaluacion;
@@ -27,6 +33,9 @@ public class EvaluacionAsignadaResponseDTO {
     private String observaciones;
 
     public EvaluacionAsignadaResponseDTO(EvaluacionAsignadaModel asignacion) {
+        this.idPuesto = asignacion.getIdPuesto();
+        this.puntajeTotal = asignacion.getPuntajeTotal();
+        this.puntajeMaxResultado = asignacion.getPuntajeMaxResultado();
         this.id = asignacion.getId();
         this.idEvaluacion = asignacion.getEvaluacion().getId();
         this.nombreEvaluacion = asignacion.getEvaluacion().getNombre();

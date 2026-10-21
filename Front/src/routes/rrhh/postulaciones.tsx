@@ -135,6 +135,7 @@ function PostulacionesRRHH() {
       await asignarEvaluacion({
         idEvaluacion: Number(asignacion.idEvaluacion),
         idPostulante: seleccionado.idPostulante,
+        idPuesto: seleccionado.idPuesto,
         fecha: asignacion.fecha,
         horaInicio: asignacion.horaInicio,
         horaFin: asignacion.horaFin,

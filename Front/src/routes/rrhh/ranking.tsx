@@ -71,11 +71,11 @@ function Ranking() {
     () =>
       ranking.map((item, index) => {
         const postulante = postulantes.find((p) => p.id === item.idPostulante);
-        const postulacion = postulaciones.find((p) => p.idPostulante === item.idPostulante);
+        const postulacion = postulaciones.find((p) => p.idPostulante === item.idPostulante && p.idPuesto === item.idPuesto);
 
         return {
           ...item,
-          posicion: index + 1,
+          posicion: ranking.slice(0, index).filter((r) => r.idPuesto === item.idPuesto).length + 1,
           nombre: postulante?.nombre ?? postulacion?.nombrePostulante ?? `Postulante ${item.idPostulante}`,
           email: postulante?.email ?? postulacion?.emailPostulante ?? "Sin email",
           puesto: postulacion?.nombrePuesto ?? "Sin puesto vinculado",
@@ -93,7 +93,7 @@ function Ranking() {
   return (
     <AppShell
       titulo="Ranking de candidatos"
-      subtitulo="Datos reales recibidos desde el workflow de ranking"
+      subtitulo="Ranking calculado automaticamente con CV y evaluaciones"
       usuario={usuario?.nombre ?? "RRHH"}
       rol="RRHH"
     >
@@ -122,7 +122,7 @@ function Ranking() {
               <ul className="space-y-3">
                 {filas.map((item) => (
                   <li
-                    key={`${item.id}-${item.idPostulante}`}
+                    key={`${item.idPuesto}-${item.idPostulante}`}
                     className="lift flex flex-wrap items-center gap-4 rounded-xl border border-border bg-surface-2/45 p-4"
                   >
                     <span
@@ -158,7 +158,7 @@ function Ranking() {
               </ul>
             ) : (
               <p className="rounded-xl border border-border bg-surface-2/45 p-4 text-sm text-muted-foreground">
-                Todavia no hay ranking guardado. Cuando n8n devuelva el resultado, aparecera aca.
+                Todavia no hay candidatos que cumplan las condiciones para ingresar al ranking.
               </p>
             )}
           </Panel>
@@ -178,10 +178,9 @@ function Ranking() {
             </div>
             <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
               {[
-                "Score IA del CV",
-                "Puntajes de evaluaciones",
-                "Compatibilidad con el puesto",
-                "Resultado de entrevistas cuando este disponible",
+                "40% score IA del CV",
+                "60% promedio de evaluaciones",
+                "Calculo independiente por puesto",
               ].map((criterio) => (
                 <li key={criterio} className="flex items-start gap-2">
                   <Trophy className="mt-0.5 size-4 shrink-0 text-primary" />

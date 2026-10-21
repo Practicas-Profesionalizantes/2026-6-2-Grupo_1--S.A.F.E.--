@@ -4,7 +4,6 @@ import com.safe.dto.NotificacionWorkflowDTO;
 import com.safe.model.EvaluacionAsignadaModel;
 import com.safe.service.EvaluacionAsignadaService;
 import com.safe.service.N8nWorkflowService;
-import com.safe.service.PostulacionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,15 +18,12 @@ import java.util.Map;
 public class N8nWorkflowController {
 
     private final EvaluacionAsignadaService evaluacionAsignadaService;
-    private final PostulacionService postulacionService;
     private final N8nWorkflowService n8nWorkflowService;
 
     public N8nWorkflowController(
             EvaluacionAsignadaService evaluacionAsignadaService,
-            PostulacionService postulacionService,
             N8nWorkflowService n8nWorkflowService) {
         this.evaluacionAsignadaService = evaluacionAsignadaService;
-        this.postulacionService = postulacionService;
         this.n8nWorkflowService = n8nWorkflowService;
     }
 
@@ -39,14 +35,6 @@ public class N8nWorkflowController {
         return ResponseEntity.ok(Map.of(
                 "status", enviado ? "ok" : "warning",
                 "message", enviado ? "Workflow de correccion enviado a n8n" : "Webhook de correccion no configurado o no disponible"
-        ));
-    }
-
-    @PostMapping("/ranking")
-    public ResponseEntity<Map<String, Object>> enviarRanking() {
-        return ResponseEntity.ok(Map.of(
-                "status", "ok",
-                "data", postulacionService.enviarRankingAn8n()
         ));
     }
 

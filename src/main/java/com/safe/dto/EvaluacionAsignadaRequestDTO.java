@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class EvaluacionAsignadaRequestDTO {
+    private Long idPuesto;
+    public Long getIdPuesto() { return idPuesto; }
+    public void setIdPuesto(Long value) { idPuesto = value; }
 
     private Integer idEvaluacion;
     private Long idPostulante;

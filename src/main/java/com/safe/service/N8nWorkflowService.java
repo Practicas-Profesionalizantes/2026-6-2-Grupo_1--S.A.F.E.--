@@ -2,7 +2,6 @@ package com.safe.service;
 
 import com.safe.dto.NotificacionWorkflowDTO;
 import com.safe.model.EvaluacionAsignadaModel;
-import com.safe.model.PostulacionModel;
 import com.safe.model.PostulanteModel;
 import com.safe.model.PreguntaModel;
 import com.safe.model.RespuestaEvaluacionModel;
@@ -30,7 +29,6 @@ public class N8nWorkflowService {
     private final String publicBaseUrl;
     private final String analisisCvUrl;
     private final String correccionEvaluacionUrl;
-    private final String rankingUrl;
     private final String notificacionUrl;
 
     public N8nWorkflowService(
@@ -40,7 +38,6 @@ public class N8nWorkflowService {
             @Value("${safe.api.public-base-url:http://localhost:8080}") String publicBaseUrl,
             @Value("${n8n.webhook.analisis-cv-url:}") String analisisCvUrl,
             @Value("${n8n.webhook.correccion-evaluacion-url:}") String correccionEvaluacionUrl,
-            @Value("${n8n.webhook.ranking-url:}") String rankingUrl,
             @Value("${n8n.webhook.notificacion-url:}") String notificacionUrl) {
         this.preguntaRepository = preguntaRepository;
         this.respuestaEvaluacionRepository = respuestaEvaluacionRepository;
@@ -48,7 +45,6 @@ public class N8nWorkflowService {
         this.publicBaseUrl = publicBaseUrl;
         this.analisisCvUrl = analisisCvUrl;
         this.correccionEvaluacionUrl = correccionEvaluacionUrl;
-        this.rankingUrl = rankingUrl;
         this.notificacionUrl = notificacionUrl;
     }
 
@@ -130,20 +126,6 @@ public class N8nWorkflowService {
         return enviar(correccionEvaluacionUrl, payload);
     }
 
-    public boolean enviarRanking(List<PostulacionModel> postulaciones) {
-        if (estaVacia(rankingUrl)) {
-            System.err.println("Webhook n8n no configurado: n8n.webhook.ranking-url");
-            return false;
-        }
-
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("evento", "GENERAR_RANKING");
-        payload.put("callbackUrl", publicBaseUrl + "/webhooks/n8n/ranking");
-        payload.put("postulaciones", postulaciones.stream().map(this::mapearPostulacion).toList());
-
-        return enviar(rankingUrl, payload);
-    }
-
     public boolean enviarNotificacion(NotificacionWorkflowDTO dto) {
         if (estaVacia(notificacionUrl)) {
             System.err.println("Webhook n8n no configurado: n8n.webhook.notificacion-url");
@@ -195,19 +177,6 @@ public class N8nWorkflowService {
 
         data.put("email", email);
         data.put("nombre", nombre);
-        return data;
-    }
-
-    private Map<String, Object> mapearPostulacion(PostulacionModel postulacion) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("idPostulante", postulacion.getPostulante().getId());
-        data.put("idPuesto", postulacion.getPuesto().getId());
-        data.put("nombrePuesto", postulacion.getPuesto().getNombrePuesto());
-        data.put("estado", postulacion.getEstado());
-        data.put("scoreIa", postulacion.getScoreIa());
-        data.put("observacionesIa", postulacion.getObservacionesIa());
-        data.put("experiencia", postulacion.getPostulante().getExperienciaLaboral());
-        data.put("estudios", postulacion.getPostulante().getEstudios());
         return data;
     }
 

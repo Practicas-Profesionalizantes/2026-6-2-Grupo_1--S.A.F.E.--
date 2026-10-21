@@ -32,7 +32,6 @@ spring.servlet.multipart.max-request-size=10MB
 
 n8n.webhook.analisis-cv-url=
 n8n.webhook.correccion-evaluacion-url=
-n8n.webhook.ranking-url=
 n8n.webhook.notificacion-url=
 n8n.webhook.result-secret=
 ```
@@ -44,7 +43,6 @@ Ejemplo:
 ```properties
 n8n.webhook.analisis-cv-url=https://n8n.midominio.com/webhook/Analizar-cv
 n8n.webhook.correccion-evaluacion-url=https://n8n.midominio.com/webhook/correccion-evaluacion
-n8n.webhook.ranking-url=https://n8n.midominio.com/webhook/ranking
 n8n.webhook.notificacion-url=https://n8n.midominio.com/webhook/notificacion
 n8n.webhook.result-secret=clave_compartida
 ```
@@ -370,77 +368,35 @@ SAFE guarda actualmente resumen y estado en `evaluacion_asignada`.
 
 ---
 
-## 3. Workflow de ranking IA
+## 3. Ranking CV + evaluaciones
 
-### Cuando se dispara
+El ranking se calcula directamente en Spring Boot. No utiliza n8n, callbacks ni un agente de IA adicional.
 
-Endpoint admin:
+La pantalla de RRHH consulta:
 
 ```http
-POST /admin/workflows/n8n/ranking
+GET /ranking
 ```
 
-### Payload enviado a n8n
-
-```json
-{
-  "evento": "GENERAR_RANKING",
-  "callbackUrl": "https://api-safe-publica.com/webhooks/n8n/ranking",
-  "postulaciones": [
-    {
-      "idPostulante": 10,
-      "idPuesto": 1,
-      "nombrePuesto": "Backend Java Jr",
-      "estado": "ANALIZADO_IA",
-      "scoreIa": 82.5,
-      "observacionesIa": "Buen perfil",
-      "experiencia": "Experiencia cargada",
-      "estudios": "Estudios cargados"
-    }
-  ]
-}
-```
-
-### Formula sugerida
-
-Hasta que el equipo defina otra formula, usar:
+El backend calcula el resultado actualizado en cada consulta:
 
 ```text
-promedioFinal = scoreIa
+promedioFinal = round(scoreIa * 0.40 + promedioEvaluacionesNormalizado * 0.60, 2)
 ```
 
 Reglas:
 
-- Si `scoreIa` es nulo, usar 0 o dejarlo al final segun decision del equipo.
-- Ordenar de mayor a menor.
-- Incluir todos los postulantes recibidos.
-- La IA no decide contratacion; solo ordena/asiste.
+- Solo participan postulaciones con estado `CUMPLE_CV`.
+- El score de CV debe estar entre 0 y 100.
+- Debe existir al menos una evaluacion asignada para ese puesto.
+- Se considera solamente el intento mas reciente de cada evaluacion.
+- Todas las evaluaciones consideradas deben estar `FINALIZADA` y tener un puntaje valido.
+- Cada nota se normaliza de 0 a 100 utilizando el puntaje maximo guardado al corregirla.
+- El ranking se calcula por `idPuesto`; una misma persona puede aparecer en puestos diferentes.
+- Se ordena por puesto, puntaje final descendente e identificador de postulante ascendente.
+- Los pesos se configuran con `safe.ranking.peso-cv` y `safe.ranking.peso-evaluaciones`, y deben sumar 1.
 
-### Callback que debe llamar n8n
-
-```http
-POST /webhooks/n8n/ranking
-```
-
-Headers:
-
-```http
-Content-Type: application/json
-X-SAFE-WEBHOOK-SECRET: <secret>
-```
-
-Body esperado:
-
-```json
-{
-  "ranking": [
-    { "idPostulante": 10, "promedioFinal": 91.5 },
-    { "idPostulante": 11, "promedioFinal": 84.25 }
-  ]
-}
-```
-
-SAFE actualiza o crea registros en `ranking`.
+Ya no deben configurarse `n8n.webhook.ranking-url`, secretos de ranking ni workflows de ranking.
 
 ---
 
@@ -625,7 +581,6 @@ Estos endpoints quedan permitidos sin JWT para que n8n pueda llamarlos:
 ```http
 POST /webhooks/n8n/analisis-cv
 POST /webhooks/n8n/correccion-evaluacion
-POST /webhooks/n8n/ranking
 POST /webhooks/n8n/notificacion
 ```
 
@@ -643,7 +598,6 @@ Estos endpoints requieren rol `ADMIN` o `RRHH`:
 
 ```http
 POST /admin/workflows/n8n/correccion-evaluacion/{idAsignacion}
-POST /admin/workflows/n8n/ranking
 POST /admin/workflows/n8n/notificacion
 ```
 

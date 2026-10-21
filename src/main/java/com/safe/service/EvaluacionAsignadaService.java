@@ -20,12 +20,15 @@ public class EvaluacionAsignadaService {
     private final EvaluacionService evaluacionService;
     private final PostulanteRepository postulanteRepository;
     private final UsuarioRepository usuarioRepository;
+    private final com.safe.repository.PostulacionRepository postulacionRepository;
 
     public EvaluacionAsignadaService(
             EvaluacionAsignadaRepository evaluacionAsignadaRepository,
             EvaluacionService evaluacionService,
             PostulanteRepository postulanteRepository,
-            UsuarioRepository usuarioRepository) {
+            UsuarioRepository usuarioRepository,
+            com.safe.repository.PostulacionRepository postulacionRepository) {
+        this.postulacionRepository = postulacionRepository;
 
         this.evaluacionAsignadaRepository = evaluacionAsignadaRepository;
         this.evaluacionService = evaluacionService;
@@ -41,6 +44,17 @@ public class EvaluacionAsignadaService {
                 .orElseThrow(() -> new RuntimeException("Postulante no encontrado"));
 
         EvaluacionAsignadaModel asignacion = new EvaluacionAsignadaModel();
+        Long idPuesto = dto.getIdPuesto() != null ? dto.getIdPuesto()
+                : evaluacion.getIdPuesto() == null ? null : evaluacion.getIdPuesto().longValue();
+        if (idPuesto != null && !postulacionRepository.existsById(
+                new com.safe.model.PostulacionId(postulante.getId(), idPuesto))) {
+            throw new IllegalArgumentException("El postulante no tiene postulacion para ese puesto");
+        }
+        if (idPuesto != null && evaluacion.getIdPuesto() != null
+                && idPuesto.longValue() != evaluacion.getIdPuesto().longValue()) {
+            throw new IllegalArgumentException("La evaluacion pertenece a otro puesto");
+        }
+        asignacion.setIdPuesto(idPuesto);
         asignacion.setEvaluacion(evaluacion);
         asignacion.setPostulante(postulante);
         asignacion.setFecha(dto.getFecha());
@@ -91,6 +105,14 @@ public class EvaluacionAsignadaService {
             String estado) {
 
         EvaluacionAsignadaModel asignacion = obtenerPorId(id);
+        BigDecimal max = asignacion.getEvaluacion().getPuntajeMax();
+        if (max == null || max.signum() <= 0 || puntajeTotal == null
+                || puntajeTotal.signum() < 0 || puntajeTotal.compareTo(max) > 0 || aprobado == null) {
+            throw new IllegalArgumentException("Resultado de correccion invalido");
+        }
+        asignacion.setPuntajeTotal(puntajeTotal);
+        asignacion.setPuntajeMaxResultado(max);
+        asignacion.setAprobado(aprobado);
         asignacion.setEstado(
                 estado == null || estado.isBlank()
                         ? "FINALIZADA"

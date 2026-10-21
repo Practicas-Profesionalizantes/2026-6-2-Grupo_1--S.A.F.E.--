@@ -74,6 +74,9 @@ export type EvaluacionApi = {
 };
 
 export type EvaluacionAsignadaApi = {
+  idPuesto?: number;
+  puntajeTotal?: number;
+  puntajeMaxResultado?: number;
   id: number;
   idEvaluacion: number;
   nombreEvaluacion: string;
@@ -111,7 +114,7 @@ export type RespuestaEvaluacionApi = {
 };
 
 export type RankingApi = {
-  id: number;
+  idPuesto: number;
   idPostulante: number;
   promedioFinal: number;
 };
@@ -446,6 +449,7 @@ export async function listarRespuestasAsignacion(idAsignacion: number) {
 }
 
 export async function asignarEvaluacion(data: {
+  idPuesto?: number;
   idEvaluacion: number;
   idPostulante: number;
   fecha: string;

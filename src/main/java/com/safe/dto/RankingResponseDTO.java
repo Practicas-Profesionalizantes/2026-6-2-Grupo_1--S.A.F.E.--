@@ -1,26 +1,23 @@
 package com.safe.dto;
 
-import com.safe.model.RankingModel;
-
 import java.math.BigDecimal;
 
 public class RankingResponseDTO {
+    private final Long idPuesto;
+    private final Long idPostulante;
+    private final BigDecimal promedioFinal;
 
-    private Integer id;
-    private Integer idPostulante;
-    private BigDecimal promedioFinal;
-
-    public RankingResponseDTO(RankingModel ranking) {
-        this.id = ranking.getId();
-        this.idPostulante = ranking.getIdPostulante();
-        this.promedioFinal = ranking.getPromedioFinal();
+    public RankingResponseDTO(Long idPuesto, Long idPostulante, BigDecimal promedioFinal) {
+        this.idPuesto = idPuesto;
+        this.idPostulante = idPostulante;
+        this.promedioFinal = promedioFinal;
     }
 
-    public Integer getId() {
-        return id;
+    public Long getIdPuesto() {
+        return idPuesto;
     }
 
-    public Integer getIdPostulante() {
+    public Long getIdPostulante() {
         return idPostulante;
     }
 

@@ -19,6 +19,20 @@ import java.time.LocalTime;
 @Table(name = "evaluacion_asignada")
 public class EvaluacionAsignadaModel {
 
+    private Long idPuesto;
+    private java.math.BigDecimal puntajeTotal;
+    private java.math.BigDecimal puntajeMaxResultado;
+    private Boolean aprobado;
+
+    public Long getIdPuesto() { return idPuesto; }
+    public void setIdPuesto(Long value) { idPuesto = value; }
+    public java.math.BigDecimal getPuntajeTotal() { return puntajeTotal; }
+    public void setPuntajeTotal(java.math.BigDecimal value) { puntajeTotal = value; }
+    public java.math.BigDecimal getPuntajeMaxResultado() { return puntajeMaxResultado; }
+    public void setPuntajeMaxResultado(java.math.BigDecimal value) { puntajeMaxResultado = value; }
+    public Boolean getAprobado() { return aprobado; }
+    public void setAprobado(Boolean value) { aprobado = value; }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

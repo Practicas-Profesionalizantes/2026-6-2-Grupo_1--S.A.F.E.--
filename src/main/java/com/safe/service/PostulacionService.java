@@ -85,14 +85,6 @@ public class PostulacionService {
         return postulacionRepository.save(postulacion);
     }
 
-    public Map<String, Object> enviarRankingAn8n() {
-        boolean enviado = n8nWorkflowService.enviarRanking(listarTodas());
-        return Map.of(
-                "enviado", enviado,
-                "message", enviado ? "Workflow de ranking enviado a n8n" : "Webhook de ranking no configurado o no disponible"
-        );
-    }
-
     public PostulacionModel registrarDecisionRrhh(
             Long idPostulante,
             Long idPuesto,
