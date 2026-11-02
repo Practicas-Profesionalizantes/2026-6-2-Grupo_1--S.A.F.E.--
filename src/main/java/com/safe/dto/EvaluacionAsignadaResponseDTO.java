@@ -11,9 +11,11 @@ public class EvaluacionAsignadaResponseDTO {
     private Long idPuesto;
     private BigDecimal puntajeTotal;
     private BigDecimal puntajeMaxResultado;
+    private Boolean aprobado;
     public Long getIdPuesto() { return idPuesto; }
     public BigDecimal getPuntajeTotal() { return puntajeTotal; }
     public BigDecimal getPuntajeMaxResultado() { return puntajeMaxResultado; }
+    public Boolean getAprobado() { return aprobado; }
 
     private Long id;
     private Integer idEvaluacion;
@@ -36,6 +38,7 @@ public class EvaluacionAsignadaResponseDTO {
         this.idPuesto = asignacion.getIdPuesto();
         this.puntajeTotal = asignacion.getPuntajeTotal();
         this.puntajeMaxResultado = asignacion.getPuntajeMaxResultado();
+        this.aprobado = asignacion.getAprobado();
         this.id = asignacion.getId();
         this.idEvaluacion = asignacion.getEvaluacion().getId();
         this.nombreEvaluacion = asignacion.getEvaluacion().getNombre();

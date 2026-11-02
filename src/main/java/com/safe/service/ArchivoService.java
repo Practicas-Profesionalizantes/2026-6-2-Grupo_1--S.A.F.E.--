@@ -29,22 +29,33 @@ public class ArchivoService {
     );
 
     private final Path cvStoragePath;
+    private final Path aptoMedicoStoragePath;
 
     public ArchivoService(@Value("${safe.uploads.dir:uploads}") String uploadsDir) {
         this.cvStoragePath = Paths.get(uploadsDir).toAbsolutePath().normalize().resolve("cv");
+        this.aptoMedicoStoragePath = Paths.get(uploadsDir).toAbsolutePath().normalize().resolve("apto-medico");
     }
 
     public String guardarCv(MultipartFile archivo) {
         validarArchivo(archivo);
+        return guardarEn(archivo, cvStoragePath, "CV");
+    }
+
+    public String guardarAptoMedico(MultipartFile archivo) {
+        validarArchivo(archivo);
+        return guardarEn(archivo, aptoMedicoStoragePath, "apto medico");
+    }
+
+    private String guardarEn(MultipartFile archivo, Path storagePath, String tipo) {
 
         try {
-            Files.createDirectories(cvStoragePath);
+            Files.createDirectories(storagePath);
 
             String extension = obtenerExtension(archivo.getOriginalFilename(), archivo.getContentType());
             String nombreArchivo = UUID.randomUUID() + extension;
-            Path destino = cvStoragePath.resolve(nombreArchivo).normalize();
+            Path destino = storagePath.resolve(nombreArchivo).normalize();
 
-            if (!destino.startsWith(cvStoragePath)) {
+            if (!destino.startsWith(storagePath)) {
                 throw new IllegalArgumentException("Nombre de archivo invalido");
             }
 
@@ -52,7 +63,7 @@ public class ArchivoService {
 
             return nombreArchivo;
         } catch (IOException e) {
-            throw new RuntimeException("No se pudo guardar el CV", e);
+            throw new RuntimeException("No se pudo guardar el " + tipo, e);
         }
     }
 
@@ -68,10 +79,18 @@ public class ArchivoService {
     }
 
     public Resource cargarCv(String nombreArchivo) {
-        try {
-            Path archivo = cvStoragePath.resolve(nombreArchivo).normalize();
+        return cargarDesde(nombreArchivo, cvStoragePath);
+    }
 
-            if (!archivo.startsWith(cvStoragePath)) {
+    public Resource cargarAptoMedico(String nombreArchivo) {
+        return cargarDesde(nombreArchivo, aptoMedicoStoragePath);
+    }
+
+    private Resource cargarDesde(String nombreArchivo, Path storagePath) {
+        try {
+            Path archivo = storagePath.resolve(nombreArchivo).normalize();
+
+            if (!archivo.startsWith(storagePath)) {
                 throw new IllegalArgumentException("Nombre de archivo invalido");
             }
 

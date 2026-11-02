@@ -9,10 +9,12 @@ import {
   asignarEvaluacion,
   getStoredUser,
   listarEvaluaciones,
+  listarTodasAsignaciones,
+  registrarDecisionEvaluacion,
   listarPostulacionesAdmin,
   registrarDecisionPostulacion,
 } from "@/lib/api";
-import type { EvaluacionApi, PostulacionApi, Usuario } from "@/lib/api";
+import type { EvaluacionApi, EvaluacionAsignadaApi, PostulacionApi, Usuario } from "@/lib/api";
 
 export const Route = createFileRoute("/rrhh/postulaciones")({
   head: () => ({
@@ -51,6 +53,7 @@ function PostulacionesRRHH() {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [postulaciones, setPostulaciones] = useState<PostulacionApi[]>([]);
   const [evaluaciones, setEvaluaciones] = useState<EvaluacionApi[]>([]);
+  const [asignaciones, setAsignaciones] = useState<EvaluacionAsignadaApi[]>([]);
   const [seleccionado, setSeleccionado] = useState<PostulacionApi | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [mensaje, setMensaje] = useState("");
@@ -96,6 +99,26 @@ function PostulacionesRRHH() {
       }
     } catch (err) {
       setMensaje(err instanceof Error ? err.message : "No se pudieron cargar las evaluaciones");
+    }
+  }
+
+  async function cargarAsignaciones() {
+    try {
+      setAsignaciones(await listarTodasAsignaciones());
+    } catch (err) {
+      setMensaje(err instanceof Error ? err.message : "No se pudieron cargar las evaluaciones corregidas");
+    }
+  }
+
+  async function decidirEvaluacion(asignacion: EvaluacionAsignadaApi, aprobado: boolean) {
+    setMensaje("");
+    setMensajeOk("");
+    try {
+      await registrarDecisionEvaluacion(asignacion.id, aprobado);
+      await cargarAsignaciones();
+      setMensajeOk(aprobado ? "Evaluacion aprobada por RRHH." : "Evaluacion desaprobada por RRHH.");
+    } catch (err) {
+      setMensaje(err instanceof Error ? err.message : "No se pudo registrar la decision de la evaluacion");
     }
   }
 
@@ -160,6 +183,7 @@ function PostulacionesRRHH() {
     setUsuario(getStoredUser());
     void cargarPostulaciones();
     void cargarEvaluaciones();
+    void cargarAsignaciones();
   }, []);
 
   const filtradas = useMemo(() => {
@@ -349,6 +373,38 @@ function PostulacionesRRHH() {
                   <p className="mt-2 text-sm text-muted-foreground">
                     {seleccionado.observacionesIa ?? "Todavia no hay resultado del analizador de CV."}
                   </p>
+                </div>
+
+                <div className="rounded-2xl border border-primary/30 bg-primary/6 p-6 md:p-7">
+                  <p className="flex items-center gap-2 text-base font-semibold text-primary">
+                    <BrainCircuit className="size-4" /> Evaluaciones corregidas
+                  </p>
+                  <div className="mt-5 space-y-5">
+                    {asignaciones.filter((item) => item.idPostulante === seleccionado.idPostulante && item.idPuesto === seleccionado.idPuesto).map((item) => (
+                      <div key={item.id} className="rounded-xl border border-border/70 bg-surface-2/45 p-5 shadow-[var(--shadow-soft)]">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-base font-semibold">{item.nombreEvaluacion}</p>
+                          <span className="rounded-full bg-primary/12 px-3 py-1 text-sm font-semibold text-primary">
+                            {item.puntajeTotal != null ? `${item.puntajeTotal}/${item.puntajeMaxResultado ?? item.puntajeMax ?? "-"}` : "Pendiente"}
+                          </span>
+                        </div>
+                        {item.observaciones ? <p className="mt-4 whitespace-pre-line text-sm leading-6 text-muted-foreground">{item.observaciones}</p> : null}
+                        {item.estado === "FINALIZADA" ? (
+                          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                            <button onClick={() => void decidirEvaluacion(item, true)} className="rounded-lg border border-success/35 bg-success/10 px-3 py-3 text-sm font-semibold text-success">
+                              <CheckCircle2 className="mr-1 inline size-4" /> Aprobar
+                            </button>
+                            <button onClick={() => void decidirEvaluacion(item, false)} className="rounded-lg border border-destructive/35 bg-destructive/10 px-3 py-3 text-sm font-semibold text-destructive">
+                              <XCircle className="mr-1 inline size-4" /> No aprobar
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
+                    ))}
+                    {!asignaciones.some((item) => item.idPostulante === seleccionado.idPostulante && item.idPuesto === seleccionado.idPuesto) ? (
+                      <p className="text-sm text-muted-foreground">Todavia no hay evaluaciones asignadas.</p>
+                    ) : null}
+                  </div>
                 </div>
 
                 <div>

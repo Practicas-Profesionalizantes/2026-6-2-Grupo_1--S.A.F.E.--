@@ -4,7 +4,7 @@ import type { ChangeEvent } from "react";
 import { Check, FileUp, ShieldCheck } from "lucide-react";
 import { Reveal } from "@/components/safe/reveal";
 import { cn } from "@/lib/utils";
-import { login, registrar, rolDestino } from "@/lib/api";
+import { guardarPerfil, login, registrar, rolDestino, subirAptoMedico, subirCv } from "@/lib/api";
 
 export const Route = createFileRoute("/registro")({
   head: () => ({
@@ -63,6 +63,13 @@ function Registro() {
     email: "",
     password: "",
     repetirPassword: "",
+    telefono: "",
+    direccion: "",
+    fechaNacimiento: "",
+    estudios: "",
+    experienciaLaboral: "",
+    cv: null as File | null,
+    aptoMedico: null as File | null,
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -97,6 +104,15 @@ function Registro() {
         password: form.password,
       });
       const user = await login(form.email, form.password);
+      await guardarPerfil({
+        telefono: form.telefono,
+        direccion: form.direccion,
+        fechaNacimiento: form.fechaNacimiento,
+        estudios: form.estudios,
+        experienciaLaboral: form.experienciaLaboral,
+      }, false);
+      if (form.cv) await subirCv(form.cv);
+      if (form.aptoMedico) await subirAptoMedico(form.aptoMedico);
       await navigate({ to: rolDestino(user.rol) });
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo registrar el usuario");
@@ -168,31 +184,32 @@ function Registro() {
             {paso === 1 ? (
               <div className="space-y-6">
                 <div className="grid gap-5 sm:grid-cols-2">
-                  <Campo label="Teléfono" placeholder="+54 11 5555 5555" />
-                  <Campo label="Dirección" placeholder="Av. Siempre Viva 742" />
-                  <Campo label="Fecha de nacimiento" placeholder="dd/mm/aaaa" />
-                  <Campo label="LinkedIn" placeholder="linkedin.com/in/usuario" />
-                  <Campo label="Estudios" placeholder="Tec. en Programación" />
-                  <Campo label="Disponibilidad" placeholder="Full time" />
+                  <Campo label="Teléfono" placeholder="+54 11 5555 5555" value={form.telefono} onChange={updateField("telefono")} />
+                  <Campo label="Dirección" placeholder="Av. Siempre Viva 742" value={form.direccion} onChange={updateField("direccion")} />
+                  <Campo label="Fecha de nacimiento" type="date" placeholder="" value={form.fechaNacimiento} onChange={updateField("fechaNacimiento")} />
+                  <Campo label="Estudios" placeholder="Tec. en Programación" value={form.estudios} onChange={updateField("estudios")} />
                 </div>
                 <label className="block">
                   <span className="text-sm text-muted-foreground">Experiencia laboral</span>
                   <textarea
                     rows={4}
                     placeholder="Describí tus últimas experiencias laborales..."
+                    value={form.experienciaLaboral}
+                    onChange={(event) => setForm((actual) => ({ ...actual, experienciaLaboral: event.target.value }))}
                     className="mt-1.5 w-full rounded-lg border border-input bg-surface-2/60 p-3 text-sm outline-none transition-shadow duration-300 placeholder:text-muted-foreground/70 focus:ring-2 focus:ring-ring/60 focus:shadow-[var(--shadow-glow)]"
                   />
                 </label>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {["CV en PDF", "Apto médico (opcional)"].map((doc) => (
-                    <div
-                      key={doc}
-                      className="lift flex items-center gap-3 rounded-xl border border-dashed border-border bg-surface-2/40 p-5 text-sm text-muted-foreground"
-                    >
-                      <FileUp className="size-5 text-primary" />
-                      {doc}
-                    </div>
-                  ))}
+                  <label className="lift flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border bg-surface-2/40 p-5 text-sm text-muted-foreground">
+                    <FileUp className="size-5 text-primary" />
+                    <span>{form.cv?.name ?? "Seleccionar CV en PDF"}</span>
+                    <input type="file" accept="application/pdf,.pdf" className="sr-only" onChange={(event) => setForm((actual) => ({ ...actual, cv: event.target.files?.[0] ?? null }))} />
+                  </label>
+                  <label className="lift flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border bg-surface-2/40 p-5 text-sm text-muted-foreground">
+                    <FileUp className="size-5 text-primary" />
+                    <span>{form.aptoMedico?.name ?? "Apto médico (opcional)"}</span>
+                    <input type="file" accept="application/pdf,.pdf" className="sr-only" onChange={(event) => setForm((actual) => ({ ...actual, aptoMedico: event.target.files?.[0] ?? null }))} />
+                  </label>
                 </div>
               </div>
             ) : null}
@@ -204,12 +221,16 @@ function Registro() {
                 </p>
                 <dl className="divide-y divide-border/70 rounded-xl border border-border bg-surface-2/40">
                   {[
-                    ["Nombre completo", "Juan Pérez"],
-                    ["DNI", "40.221.998"],
-                    ["Email", "juan.perez@mail.com"],
-                    ["Estudios", "Tec. en Programación"],
-                    ["Experiencia", "2 años en desarrollo backend"],
-                    ["CV", "juan_perez_cv.pdf"],
+                    ["Nombre completo", form.nombre + " " + form.apellido],
+                    ["DNI", form.dni],
+                    ["Email", form.email],
+                    ["Teléfono", form.telefono || "Sin completar"],
+                    ["Dirección", form.direccion || "Sin completar"],
+                    ["Fecha de nacimiento", form.fechaNacimiento || "Sin completar"],
+                    ["Estudios", form.estudios || "Sin completar"],
+                    ["Experiencia", form.experienciaLaboral || "Sin completar"],
+                    ["CV", form.cv?.name || "No seleccionado"],
+                    ["Apto médico", form.aptoMedico?.name || "No cargado (opcional)"],
                   ].map(([k, v]) => (
                     <div key={k} className="flex justify-between gap-4 px-4 py-3 text-sm">
                       <dt className="text-muted-foreground">{k}</dt>

@@ -1,6 +1,7 @@
 package com.safe.service;
 
 import com.safe.dto.EvaluacionAsignadaRequestDTO;
+import com.safe.dto.NotificacionWorkflowDTO;
 import com.safe.model.EvaluacionAsignadaModel;
 import com.safe.model.EvaluacionModel;
 import com.safe.model.PostulanteModel;
@@ -11,7 +12,9 @@ import com.safe.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class EvaluacionAsignadaService {
@@ -21,14 +24,17 @@ public class EvaluacionAsignadaService {
     private final PostulanteRepository postulanteRepository;
     private final UsuarioRepository usuarioRepository;
     private final com.safe.repository.PostulacionRepository postulacionRepository;
+    private final N8nWorkflowService n8nWorkflowService;
 
     public EvaluacionAsignadaService(
             EvaluacionAsignadaRepository evaluacionAsignadaRepository,
             EvaluacionService evaluacionService,
             PostulanteRepository postulanteRepository,
             UsuarioRepository usuarioRepository,
-            com.safe.repository.PostulacionRepository postulacionRepository) {
+            com.safe.repository.PostulacionRepository postulacionRepository,
+            N8nWorkflowService n8nWorkflowService) {
         this.postulacionRepository = postulacionRepository;
+        this.n8nWorkflowService = n8nWorkflowService;
 
         this.evaluacionAsignadaRepository = evaluacionAsignadaRepository;
         this.evaluacionService = evaluacionService;
@@ -97,22 +103,53 @@ public class EvaluacionAsignadaService {
                 .orElseThrow(() -> new RuntimeException("Asignacion de evaluacion no encontrada"));
     }
 
+    public EvaluacionAsignadaModel registrarDecisionRrhh(Long id, boolean aprobado) {
+        EvaluacionAsignadaModel asignacion = obtenerPorId(id);
+        if (!"FINALIZADA".equalsIgnoreCase(asignacion.getEstado())) {
+            throw new IllegalArgumentException("La evaluacion debe estar finalizada antes de decidirla");
+        }
+        asignacion.setAprobado(aprobado);
+        EvaluacionAsignadaModel guardada = evaluacionAsignadaRepository.save(asignacion);
+
+        NotificacionWorkflowDTO notificacion = new NotificacionWorkflowDTO();
+        notificacion.setIdPostulante(asignacion.getPostulante().getId());
+        notificacion.setTipo(aprobado ? "RESULTADO_DISPONIBLE" : "EVALUACION_DESAPROBADA");
+        notificacion.setEstado("PENDIENTE_ENVIO");
+        notificacion.setMensaje(aprobado
+                ? "Aprobaste la evaluacion y continuas en el proceso de seleccion."
+                : "No alcanzaste el resultado esperado en la evaluacion.");
+        notificacion.setDetalle("RRHH registro la decision sobre la evaluacion "
+                + asignacion.getEvaluacion().getNombre() + ".");
+        Map<String, Object> datos = new HashMap<>();
+        datos.put("evaluacion", asignacion.getEvaluacion().getNombre());
+        datos.put("puntaje", asignacion.getPuntajeTotal() != null ? asignacion.getPuntajeTotal() : 0);
+        datos.put("aprobado", aprobado);
+        notificacion.setDatos(datos);
+        try {
+            n8nWorkflowService.enviarNotificacion(notificacion);
+        } catch (RuntimeException errorCallback) {
+            System.err.println("La decision se guardo, pero no se pudo enviar la notificacion: " + errorCallback.getMessage());
+        }
+
+        return guardada;
+    }
+
     public EvaluacionAsignadaModel registrarResultadoCorreccion(
             Long id,
             BigDecimal puntajeTotal,
-            Boolean aprobado,
             String observacionesIa,
             String estado) {
 
         EvaluacionAsignadaModel asignacion = obtenerPorId(id);
         BigDecimal max = asignacion.getEvaluacion().getPuntajeMax();
         if (max == null || max.signum() <= 0 || puntajeTotal == null
-                || puntajeTotal.signum() < 0 || puntajeTotal.compareTo(max) > 0 || aprobado == null) {
+                || puntajeTotal.signum() < 0 || puntajeTotal.compareTo(max) > 0) {
             throw new IllegalArgumentException("Resultado de correccion invalido");
         }
         asignacion.setPuntajeTotal(puntajeTotal);
         asignacion.setPuntajeMaxResultado(max);
-        asignacion.setAprobado(aprobado);
+        // La IA informa el puntaje; la decisión de RRHH se toma por separado.
+        asignacion.setAprobado(null);
         asignacion.setEstado(
                 estado == null || estado.isBlank()
                         ? "FINALIZADA"
@@ -121,7 +158,6 @@ public class EvaluacionAsignadaService {
 
         String resumen = "Resultado IA"
                 + " | puntajeTotal=" + (puntajeTotal != null ? puntajeTotal : "SIN_PUNTAJE")
-                + " | aprobado=" + (aprobado != null ? aprobado : "SIN_DEFINIR")
                 + " | observaciones=" + (observacionesIa != null ? observacionesIa : "");
 
         asignacion.setObservaciones(resumen);

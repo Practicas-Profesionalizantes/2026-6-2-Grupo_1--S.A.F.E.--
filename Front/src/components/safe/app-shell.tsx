@@ -1,4 +1,5 @@
 ﻿import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import {
   Bell,
@@ -15,7 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { clearSession } from "@/lib/api";
+import { clearSession, getStoredUser, listarEvaluacionesAsignadas, listarMisPostulaciones } from "@/lib/api";
 import { ScrollProgress, useScrolled } from "./reveal";
 
 const navPostulante = [
@@ -52,6 +53,25 @@ export function AppShell({
   const scrolled = useScrolled();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const items = rol === "RRHH" ? navRRHH : navPostulante;
+  const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false);
+  const [notificaciones, setNotificaciones] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (rol !== "POSTULANTE" || !getStoredUser()) return;
+    Promise.all([listarEvaluacionesAsignadas(), listarMisPostulaciones()])
+      .then(([evaluaciones, postulaciones]) => {
+        const novedades = [
+          ...evaluaciones
+            .filter((evaluacion) => ["DISPONIBLE", "FINALIZADA", "ANALIZADA_IA"].includes(evaluacion.estado.toUpperCase()))
+            .map((evaluacion) => evaluacion.nombreEvaluacion + ": " + evaluacion.estado.toLowerCase().replaceAll("_", " ")),
+          ...postulaciones
+            .filter((postulacion) => postulacion.estado && postulacion.estado.toUpperCase() !== "PENDIENTE")
+            .map((postulacion) => postulacion.nombrePuesto + ": " + postulacion.estado.toLowerCase().replaceAll("_", " ")),
+        ];
+        setNotificaciones(novedades.slice(0, 6));
+      })
+      .catch(() => setNotificaciones([]));
+  }, [rol]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -116,10 +136,18 @@ export function AppShell({
               />
             </div>
 
-            <button className="relative grid size-10 place-items-center rounded-lg border border-border bg-surface-2/70 text-muted-foreground transition-colors hover:text-foreground">
+            <div className="relative">
+            <button onClick={() => setNotificacionesAbiertas((value) => !value)} className="relative grid size-10 place-items-center rounded-lg border border-border bg-surface-2/70 text-muted-foreground transition-colors hover:text-foreground" title="Notificaciones">
               <Bell className="size-4" />
-              <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-accent" />
+              {notificaciones.length ? <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-accent" /> : null}
             </button>
+            {notificacionesAbiertas ? (
+              <div className="absolute right-0 top-12 z-50 w-80 rounded-xl border border-border bg-surface p-3 shadow-xl">
+                <p className="px-2 pb-2 text-sm font-semibold">Notificaciones</p>
+                {notificaciones.length ? <ul className="space-y-1">{notificaciones.map((notificacion, index) => <li key={index} className="rounded-lg px-2 py-2 text-sm text-muted-foreground hover:bg-surface-2">{notificacion}</li>)}</ul> : <p className="px-2 py-3 text-sm text-muted-foreground">No tenes novedades.</p>}
+              </div>
+            ) : null}
+            </div>
 
             <div className="flex items-center gap-3 rounded-lg border border-border bg-surface-2/70 px-3 py-1.5">
               <span className="grid size-8 place-items-center rounded-full bg-[image:var(--gradient-primary)] text-xs font-semibold text-primary-foreground">

@@ -77,7 +77,6 @@ public class N8nWebhookController {
         EvaluacionAsignadaModel asignacion = evaluacionAsignadaService.registrarResultadoCorreccion(
                 dto.getIdAsignacion(),
                 dto.getPuntajeTotal(),
-                dto.getAprobado(),
                 dto.getObservacionesIa(),
                 dto.getEstado()
         );

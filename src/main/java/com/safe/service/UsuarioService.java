@@ -55,4 +55,16 @@ public class UsuarioService {
         return repo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
+
+    public void cambiarContrasena(String email, String actual, String nueva) {
+        if (nueva == null || nueva.isBlank() || nueva.length() < 8) {
+            throw new RuntimeException("La nueva contrasena debe tener al menos 8 caracteres");
+        }
+        UsuarioModel usuario = findByEmail(email);
+        if (!passwordEncoder.matches(actual, usuario.getContrasena())) {
+            throw new RuntimeException("La contrasena actual no es correcta");
+        }
+        usuario.setContrasena(passwordEncoder.encode(nueva));
+        repo.save(usuario);
+    }
 }

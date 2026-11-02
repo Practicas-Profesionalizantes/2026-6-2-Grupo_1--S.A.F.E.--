@@ -73,9 +73,10 @@ function RendirEvaluacion() {
   );
   const progreso = preguntas.length ? Math.round((respondidas / preguntas.length) * 100) : 0;
   const tiempoAgotado = tiempoRestante !== null && tiempoRestante <= 0;
+  const yaEnviada = enviado || ["RESPONDIDA", "FINALIZADA", "ANALIZADA_IA"].includes((evaluacion?.estado ?? "").toUpperCase());
 
   useEffect(() => {
-    if (!evaluacion?.fecha || !evaluacion.horaFin || enviado || cargando) {
+    if (!evaluacion?.fecha || !evaluacion.horaFin || yaEnviada || cargando) {
       return;
     }
 
@@ -101,7 +102,7 @@ function RendirEvaluacion() {
     actualizarTiempo();
     const intervalId = window.setInterval(actualizarTiempo, 1000);
     return () => window.clearInterval(intervalId);
-  }, [cargando, enviado, enviando, evaluacion, preguntas, respuestas]);
+  }, [cargando, yaEnviada, enviando, evaluacion, preguntas, respuestas]);
 
   async function enviarEvaluacion(options: { automatico?: boolean } = {}) {
     const automatico = Boolean(options.automatico);
@@ -153,7 +154,7 @@ function RendirEvaluacion() {
           {mensaje}
         </div>
       ) : null}
-      {avisoTiempo && !enviado ? (
+      {avisoTiempo && !yaEnviada ? (
         <div className="mb-5 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
           {avisoTiempo}
         </div>
@@ -164,7 +165,7 @@ function RendirEvaluacion() {
           <Panel titulo="Preguntas">
             {cargando ? (
               <p className="text-sm text-muted-foreground">Cargando preguntas...</p>
-            ) : enviado ? (
+            ) : yaEnviada ? (
               <div className="rounded-xl border border-success/30 bg-success/10 p-6 text-center">
                 <CheckCircle2 className="mx-auto size-8 text-success" />
                 <p className="mt-3 font-semibold">Evaluacion enviada</p>
@@ -198,7 +199,7 @@ function RendirEvaluacion() {
                     <textarea
                       rows={4}
                       value={respuestas[pregunta.id] ?? ""}
-                      disabled={tiempoAgotado || enviando}
+                      disabled={yaEnviada || tiempoAgotado || enviando}
                       onChange={(event) =>
                         setRespuestas((actual) => ({ ...actual, [pregunta.id]: event.target.value }))
                       }
@@ -255,7 +256,7 @@ function RendirEvaluacion() {
 
             <button
               onClick={() => void enviarEvaluacion()}
-              disabled={enviado || enviando || cargando || !preguntas.length || tiempoAgotado}
+              disabled={yaEnviada || enviando || cargando || !preguntas.length || tiempoAgotado}
               className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[image:var(--gradient-primary)] px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform duration-300 hover:-translate-y-0.5 disabled:opacity-60"
             >
               <Send className="size-4" /> {enviando ? "Enviando..." : "Enviar evaluacion"}

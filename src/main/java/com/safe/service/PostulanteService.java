@@ -117,6 +117,13 @@ public class PostulanteService {
         return postulanteRepo.save(postulante);
     }
 
+    public PostulanteModel subirAptoMedico(String email, MultipartFile archivo) {
+        PostulanteModel postulante = obtenerPorEmail(email);
+        String nombreArchivo = archivoService.guardarAptoMedico(archivo);
+        postulante.setAptoMedicoUrl("/archivos/apto-medico/" + nombreArchivo);
+        return postulanteRepo.save(postulante);
+    }
+
     // =========================
     // ELIMINAR
     // =========================

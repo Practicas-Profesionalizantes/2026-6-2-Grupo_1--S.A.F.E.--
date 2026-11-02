@@ -28,4 +28,14 @@ public class ArchivoController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + nombreArchivo + "\"")
                 .body(archivo);
     }
+
+    @GetMapping("/archivos/apto-medico/{nombreArchivo:.+}")
+    public ResponseEntity<Resource> obtenerAptoMedico(@PathVariable String nombreArchivo) {
+        Resource archivo = archivoService.cargarAptoMedico(nombreArchivo);
+        String contentType = archivoService.detectarContentType(nombreArchivo);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + nombreArchivo + "\"")
+                .body(archivo);
+    }
 }

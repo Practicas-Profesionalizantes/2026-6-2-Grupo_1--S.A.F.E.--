@@ -92,11 +92,7 @@ function MisEvaluaciones() {
                   </div>
                 </dl>
 
-                {ev.observaciones ? (
-                  <p className="mt-4 rounded-lg border border-border/70 bg-surface-2/45 p-3 text-sm text-muted-foreground">
-                    {ev.observaciones}
-                  </p>
-                ) : null}
+                {ev.observaciones ? <ResultadoEvaluacion observaciones={ev.observaciones} puntaje={ev.puntajeTotal} /> : null}
 
                 <div className="mt-5 flex-1" />
                 {disponible ? (
@@ -158,4 +154,21 @@ function textoEstado(ev: EvaluacionAsignadaApi) {
   if (estado === "FINALIZADA" || estado === "ANALIZADA_IA") return "Evaluacion finalizada";
   if (estado === "VENCIDA") return "Horario vencido";
   return "Fuera del horario habilitado";
+}
+
+function ResultadoEvaluacion({ observaciones, puntaje }: { observaciones: string; puntaje?: number }) {
+  const partes = observaciones.split(" | ");
+  const resumen = partes[0]?.startsWith("Puntaje ") ? partes.shift() : undefined;
+  return (
+    <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
+      <div className="flex items-center justify-between gap-3">
+        <p className="font-medium text-foreground">Resultado de la evaluación</p>
+        {puntaje != null ? <span className="rounded-full bg-primary/15 px-2.5 py-1 font-semibold text-primary">{puntaje}/100</span> : null}
+      </div>
+      {resumen ? <p className="mt-2 text-muted-foreground">{resumen.replace(/^Puntaje\s+[^.]+\.\s*/, "")}</p> : null}
+      <ul className="mt-3 space-y-1.5 text-muted-foreground">
+        {partes.map((parte, index) => <li key={index} className="border-t border-border/50 pt-1.5">{parte}</li>)}
+      </ul>
+    </div>
+  );
 }

@@ -67,6 +67,14 @@ public class PostulanteController {
         return ResponseEntity.ok(new PostulanteResponseDTO(actualizado));
     }
 
+    @PostMapping(value = "/perfil/apto-medico", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostulanteResponseDTO> subirAptoMedico(
+            @RequestParam("archivo") MultipartFile archivo,
+            Authentication authentication) {
+        PostulanteModel actualizado = service.subirAptoMedico(authentication.getName(), archivo);
+        return ResponseEntity.ok(new PostulanteResponseDTO(actualizado));
+    }
+
     @DeleteMapping("/perfil")
     public ResponseEntity<String> eliminarPerfil(Authentication authentication) {
         String email = authentication.getName();

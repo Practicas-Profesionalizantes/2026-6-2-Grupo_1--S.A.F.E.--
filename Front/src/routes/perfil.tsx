@@ -4,7 +4,7 @@ import { FileUp, Save, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/safe/app-shell";
 import { Panel, ScoreBar } from "@/components/safe/pieces";
 import { Reveal } from "@/components/safe/reveal";
-import { archivoUrl, getStoredUser, guardarPerfil, obtenerPerfil, subirCv } from "@/lib/api";
+import { archivoUrl, cambiarContrasena, getStoredUser, guardarPerfil, obtenerPerfil, subirCv } from "@/lib/api";
 import type { PostulanteApi, Usuario } from "@/lib/api";
 
 export const Route = createFileRoute("/perfil")({
@@ -31,6 +31,10 @@ function Perfil() {
   const [form, setForm] = useState<Partial<PostulanteApi>>({});
   const [existePerfil, setExistePerfil] = useState(false);
   const [mensaje, setMensaje] = useState("");
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [contrasenaActual, setContrasenaActual] = useState("");
+  const [nuevaContrasena, setNuevaContrasena] = useState("");
+  const [repetirContrasena, setRepetirContrasena] = useState("");
 
   useEffect(() => {
     setUsuario(getStoredUser());
@@ -74,6 +78,28 @@ function Perfil() {
       setMensaje("CV cargado correctamente");
     } catch (err) {
       setMensaje(err instanceof Error ? err.message : "No se pudo cargar el CV");
+    }
+  }
+
+  async function actualizarContrasena() {
+    setMensaje("");
+    if (nuevaContrasena.length < 8) {
+      setMensaje("La nueva contrasena debe tener al menos 8 caracteres");
+      return;
+    }
+    if (nuevaContrasena !== repetirContrasena) {
+      setMensaje("Las contrasenas nuevas no coinciden");
+      return;
+    }
+    try {
+      await cambiarContrasena(contrasenaActual, nuevaContrasena);
+      setContrasenaActual("");
+      setNuevaContrasena("");
+      setRepetirContrasena("");
+      setMostrarContrasena(false);
+      setMensaje("Contrasena actualizada correctamente");
+    } catch (err) {
+      setMensaje(err instanceof Error ? err.message : "No se pudo actualizar la contrasena");
     }
   }
 
@@ -189,9 +215,17 @@ function Perfil() {
                   Tus datos se usan únicamente dentro del proceso de selección y se almacenan de forma cifrada.
                 </p>
               </div>
-              <button className="mt-4 w-full rounded-lg border border-border bg-surface-2/60 px-4 py-2.5 text-sm transition-colors hover:border-primary/40 hover:text-primary">
+              <button onClick={() => setMostrarContrasena((value) => !value)} className="mt-4 w-full rounded-lg border border-border bg-surface-2/60 px-4 py-2.5 text-sm transition-colors hover:border-primary/40 hover:text-primary">
                 Cambiar contraseña
               </button>
+              {mostrarContrasena ? (
+                <div className="mt-4 space-y-3">
+                  <input type="password" placeholder="Contrasena actual" value={contrasenaActual} onChange={(event) => setContrasenaActual(event.target.value)} className="h-10 w-full rounded-lg border border-input bg-surface-2/60 px-3 text-sm" />
+                  <input type="password" placeholder="Nueva contrasena (min. 8 caracteres)" value={nuevaContrasena} onChange={(event) => setNuevaContrasena(event.target.value)} className="h-10 w-full rounded-lg border border-input bg-surface-2/60 px-3 text-sm" />
+                  <input type="password" placeholder="Repetir nueva contrasena" value={repetirContrasena} onChange={(event) => setRepetirContrasena(event.target.value)} className="h-10 w-full rounded-lg border border-input bg-surface-2/60 px-3 text-sm" />
+                  <button onClick={() => void actualizarContrasena()} className="w-full rounded-lg bg-[image:var(--gradient-primary)] px-4 py-2.5 text-sm font-semibold text-primary-foreground">Guardar contrasena</button>
+                </div>
+              ) : null}
             </Panel>
           </Reveal>
         </div>

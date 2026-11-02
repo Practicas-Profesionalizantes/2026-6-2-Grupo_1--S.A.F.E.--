@@ -118,6 +118,34 @@ public class EvaluacionAsignadaController {
         }
     }
 
+    @PatchMapping("/admin/evaluaciones/asignaciones/{id}/decision")
+    public ResponseEntity<Map<String, Object>> decidirEvaluacion(
+            @PathVariable Long id,
+            @RequestBody Map<String, Boolean> body) {
+        try {
+            Boolean aprobado = body.get("aprobado");
+            if (aprobado == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "La decision de RRHH es obligatoria"
+                ));
+            }
+            EvaluacionAsignadaModel asignacion = evaluacionAsignadaService.registrarDecisionRrhh(id, aprobado);
+            return ResponseEntity.ok(Map.of(
+                    "status", "ok",
+                    "message", "Decision de evaluacion registrada correctamente",
+                    "data", new EvaluacionAsignadaResponseDTO(asignacion)
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage() == null ? "No se pudo registrar la decision de RRHH" : e.getMessage()
+            ));
+        }
+    }
+
     @GetMapping("/postulante/evaluaciones/asignadas")
     public ResponseEntity<Map<String, Object>> listarDelPostulante(Authentication authentication) {
         Map<String, Object> response = new HashMap<>();

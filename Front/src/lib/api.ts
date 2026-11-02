@@ -77,6 +77,7 @@ export type EvaluacionAsignadaApi = {
   idPuesto?: number;
   puntajeTotal?: number;
   puntajeMaxResultado?: number;
+  aprobado?: boolean;
   id: number;
   idEvaluacion: number;
   nombreEvaluacion: string;
@@ -260,6 +261,13 @@ export async function login(email: string, password: string) {
   return user;
 }
 
+export async function cambiarContrasena(contrasenaActual: string, nuevaContrasena: string) {
+  return apiRequest<{ message?: string }>("/usuario/password", {
+    method: "PATCH",
+    body: { contrasenaActual, nuevaContrasena },
+  });
+}
+
 export async function registrar(data: {
   dni: string;
   nombre: string;
@@ -325,6 +333,15 @@ export async function subirCv(archivo: File) {
   const formData = new FormData();
   formData.append("archivo", archivo);
   return apiRequest<PostulanteApi>("/postulante/perfil/cv", {
+    method: "POST",
+    body: formData,
+  });
+}
+
+export async function subirAptoMedico(archivo: File) {
+  const formData = new FormData();
+  formData.append("archivo", archivo);
+  return apiRequest<PostulanteApi>("/postulante/perfil/apto-medico", {
     method: "POST",
     body: formData,
   });
@@ -446,6 +463,14 @@ export async function listarRespuestasAsignacion(idAsignacion: number) {
     `/admin/evaluaciones/asignaciones/${idAsignacion}/respuestas`,
   );
   return response.data ?? [];
+}
+
+export async function registrarDecisionEvaluacion(idAsignacion: number, aprobado: boolean) {
+  const response = await apiRequest<ApiEnvelope<EvaluacionAsignadaApi>>(
+    `/admin/evaluaciones/asignaciones/${idAsignacion}/decision`,
+    { method: "PATCH", body: { aprobado } },
+  );
+  return response.data;
 }
 
 export async function asignarEvaluacion(data: {
