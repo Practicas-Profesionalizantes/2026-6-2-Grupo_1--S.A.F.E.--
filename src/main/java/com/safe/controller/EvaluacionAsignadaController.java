@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -142,6 +143,24 @@ public class EvaluacionAsignadaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
                     "status", "error",
                     "message", e.getMessage() == null ? "No se pudo registrar la decision de RRHH" : e.getMessage()
+            ));
+        }
+    }
+
+    @DeleteMapping("/admin/evaluaciones/asignaciones/{id}")
+    public ResponseEntity<Map<String, Object>> eliminar(@PathVariable Long id) {
+        try {
+            evaluacionAsignadaService.eliminar(id);
+            return ResponseEntity.ok(Map.of(
+                    "status", "ok",
+                    "message", "Asignacion de evaluacion eliminada correctamente"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage() == null
+                            ? "No se pudo eliminar la asignacion"
+                            : e.getMessage()
             ));
         }
     }

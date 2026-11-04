@@ -8,6 +8,7 @@ import {
   asignarEvaluacion,
   crearPreguntaEvaluacion,
   crearEvaluacion,
+  eliminarAsignacionEvaluacion,
   eliminarEvaluacion,
   eliminarPreguntaEvaluacion,
   getStoredUser,
@@ -75,8 +76,25 @@ function EvaluacionesRRHH() {
     pregunta: "",
     tipo: "DESARROLLO",
     respuestaCorrecta: "",
+    opciones: ["", ""],
     peso: "10",
   });
+
+  function cambiarTipoPregunta(tipo: string) {
+    setPreguntaForm((actual) => ({
+      ...actual,
+      tipo,
+      respuestaCorrecta: "",
+      opciones:
+        tipo === "OPCION_MULTIPLE"
+          ? actual.opciones.length >= 2
+            ? actual.opciones
+            : ["", ""]
+          : tipo === "VERDADERO_FALSO"
+            ? ["Verdadero", "Falso"]
+            : [],
+    }));
+  }
 
   async function cargarDatos() {
     try {
@@ -204,12 +222,14 @@ function EvaluacionesRRHH() {
         pregunta: preguntaForm.pregunta,
         tipo: preguntaForm.tipo,
         respuestaCorrecta: preguntaForm.respuestaCorrecta,
+        opciones: preguntaForm.opciones.filter((opcion) => opcion.trim()),
         peso: Number(preguntaForm.peso),
       });
       setPreguntaForm({
         pregunta: "",
         tipo: "DESARROLLO",
         respuestaCorrecta: "",
+        opciones: ["", ""],
         peso: "10",
       });
       await cargarPreguntas(Number(idEvaluacionPreguntas));
@@ -229,6 +249,23 @@ function EvaluacionesRRHH() {
       setMensaje("Pregunta eliminada correctamente");
     } catch (err) {
       setMensaje(err instanceof Error ? err.message : "No se pudo eliminar la pregunta");
+    }
+  }
+
+  async function borrarAsignacion(idAsignacion: number) {
+    if (!window.confirm("Se eliminara la asignacion y sus respuestas. ¿Continuar?")) {
+      return;
+    }
+
+    setMensaje("");
+    try {
+      await eliminarAsignacionEvaluacion(idAsignacion);
+      setAsignaciones((actuales) => actuales.filter((item) => item.id !== idAsignacion));
+      setRespuestas([]);
+      setIdAsignacionResultado("");
+      setMensaje("Asignacion eliminada correctamente");
+    } catch (err) {
+      setMensaje(err instanceof Error ? err.message : "No se pudo eliminar la asignacion");
     }
   }
 
@@ -361,7 +398,7 @@ function EvaluacionesRRHH() {
                 />
                 <select
                   value={preguntaForm.tipo}
-                  onChange={(event) => setPreguntaForm((actual) => ({ ...actual, tipo: event.target.value }))}
+                  onChange={(event) => cambiarTipoPregunta(event.target.value)}
                   className="h-10 rounded-lg border border-input bg-surface-2/60 px-3 outline-none focus:ring-2 focus:ring-ring/60"
                 >
                   <option value="DESARROLLO">Desarrollo</option>
@@ -375,14 +412,88 @@ function EvaluacionesRRHH() {
                   placeholder="Peso"
                   className="h-10 rounded-lg border border-input bg-surface-2/60 px-3 outline-none focus:ring-2 focus:ring-ring/60"
                 />
-                <textarea
-                  value={preguntaForm.respuestaCorrecta}
-                  onChange={(event) =>
-                    setPreguntaForm((actual) => ({ ...actual, respuestaCorrecta: event.target.value }))
-                  }
-                  placeholder="Respuesta esperada para que n8n compare"
-                  className="rounded-lg border border-input bg-surface-2/60 p-3 outline-none focus:ring-2 focus:ring-ring/60 md:col-span-4"
-                />
+                {preguntaForm.tipo === "OPCION_MULTIPLE" ? (
+                  <div className="rounded-xl border border-border bg-surface-2/35 p-3 md:col-span-4">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <p className="text-sm font-medium">Opciones de respuesta</p>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPreguntaForm((actual) => ({ ...actual, opciones: [...actual.opciones, ""] }))
+                        }
+                        className="text-sm font-semibold text-primary hover:underline"
+                      >
+                        + Agregar opcion
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {preguntaForm.opciones.map((opcion, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="respuesta-correcta"
+                            checked={preguntaForm.respuestaCorrecta === opcion && opcion.trim() !== ""}
+                            onChange={() => setPreguntaForm((actual) => ({ ...actual, respuestaCorrecta: opcion }))}
+                            aria-label={`Marcar opcion ${index + 1} como correcta`}
+                          />
+                          <input
+                            value={opcion}
+                            onChange={(event) =>
+                              setPreguntaForm((actual) => {
+                                const opciones = [...actual.opciones];
+                                opciones[index] = event.target.value;
+                                return {
+                                  ...actual,
+                                  opciones,
+                                  respuestaCorrecta:
+                                    actual.respuestaCorrecta === opcion ? event.target.value : actual.respuestaCorrecta,
+                                };
+                              })
+                            }
+                            placeholder={`Opcion ${index + 1}`}
+                            className="h-10 flex-1 rounded-lg border border-input bg-surface-2/60 px-3 outline-none focus:ring-2 focus:ring-ring/60"
+                          />
+                          {preguntaForm.opciones.length > 2 ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setPreguntaForm((actual) => ({
+                                  ...actual,
+                                  opciones: actual.opciones.filter((_, opcionIndex) => opcionIndex !== index),
+                                  respuestaCorrecta: actual.respuestaCorrecta === opcion ? "" : actual.respuestaCorrecta,
+                                }))
+                              }
+                              className="grid size-9 place-items-center rounded-lg border border-border text-muted-foreground hover:border-destructive/40 hover:text-destructive"
+                              aria-label={`Eliminar opcion ${index + 1}`}
+                            >
+                              <Trash2 className="size-4" />
+                            </button>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">Selecciona el circulo de la respuesta correcta.</p>
+                  </div>
+                ) : preguntaForm.tipo === "VERDADERO_FALSO" ? (
+                  <select
+                    value={preguntaForm.respuestaCorrecta}
+                    onChange={(event) => setPreguntaForm((actual) => ({ ...actual, respuestaCorrecta: event.target.value }))}
+                    className="h-10 rounded-lg border border-input bg-surface-2/60 px-3 outline-none focus:ring-2 focus:ring-ring/60 md:col-span-4"
+                  >
+                    <option value="">Selecciona la respuesta correcta</option>
+                    <option value="Verdadero">Verdadero</option>
+                    <option value="Falso">Falso</option>
+                  </select>
+                ) : (
+                  <textarea
+                    value={preguntaForm.respuestaCorrecta}
+                    onChange={(event) =>
+                      setPreguntaForm((actual) => ({ ...actual, respuestaCorrecta: event.target.value }))
+                    }
+                    placeholder="Respuesta esperada para que n8n compare"
+                    className="rounded-lg border border-input bg-surface-2/60 p-3 outline-none focus:ring-2 focus:ring-ring/60 md:col-span-4"
+                  />
+                )}
               </div>
 
               <button
@@ -544,6 +655,14 @@ function EvaluacionesRRHH() {
                           {asignacionResultado.fecha ?? "Sin fecha"}
                         </p>
                       </div>
+                      <button
+                        onClick={() => void borrarAsignacion(asignacionResultado.id)}
+                        className="grid size-9 place-items-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive"
+                        title="Eliminar asignacion"
+                        aria-label="Eliminar asignacion"
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
                       <EstadoBadge estado={asignacionResultado.estado} />
                     </div>
                   </div>

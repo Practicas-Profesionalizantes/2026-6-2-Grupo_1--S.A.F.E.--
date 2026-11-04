@@ -12,7 +12,7 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    // 🔐 clave segura (mínimo 32 caracteres para HS256)
+    // clave segura (mínimo 32 caracteres para HS256)
     private final String SECRET = "clavesecretamuylargaysegura123456";
 
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());

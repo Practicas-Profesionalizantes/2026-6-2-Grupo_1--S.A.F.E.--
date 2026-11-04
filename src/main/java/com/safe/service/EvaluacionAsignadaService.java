@@ -9,6 +9,8 @@ import com.safe.model.UsuarioModel;
 import com.safe.repository.EvaluacionAsignadaRepository;
 import com.safe.repository.PostulanteRepository;
 import com.safe.repository.UsuarioRepository;
+import com.safe.repository.RespuestaEvaluacionRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,6 +27,7 @@ public class EvaluacionAsignadaService {
     private final UsuarioRepository usuarioRepository;
     private final com.safe.repository.PostulacionRepository postulacionRepository;
     private final N8nWorkflowService n8nWorkflowService;
+    private final RespuestaEvaluacionRepository respuestaEvaluacionRepository;
 
     public EvaluacionAsignadaService(
             EvaluacionAsignadaRepository evaluacionAsignadaRepository,
@@ -32,9 +35,11 @@ public class EvaluacionAsignadaService {
             PostulanteRepository postulanteRepository,
             UsuarioRepository usuarioRepository,
             com.safe.repository.PostulacionRepository postulacionRepository,
-            N8nWorkflowService n8nWorkflowService) {
+            N8nWorkflowService n8nWorkflowService,
+            RespuestaEvaluacionRepository respuestaEvaluacionRepository) {
         this.postulacionRepository = postulacionRepository;
         this.n8nWorkflowService = n8nWorkflowService;
+        this.respuestaEvaluacionRepository = respuestaEvaluacionRepository;
 
         this.evaluacionAsignadaRepository = evaluacionAsignadaRepository;
         this.evaluacionService = evaluacionService;
@@ -70,7 +75,18 @@ public class EvaluacionAsignadaService {
         asignacion.setEstado("PENDIENTE");
         asignacion.setIntento(1);
 
-        return evaluacionAsignadaRepository.save(asignacion);
+        EvaluacionAsignadaModel guardada = evaluacionAsignadaRepository.save(asignacion);
+        try {
+            boolean notificacionEnviada = n8nWorkflowService.enviarNotificacionEvaluacion(guardada);
+            if (!notificacionEnviada) {
+                System.err.println("La evaluacion se asigno, pero no se pudo enviar la notificacion a n8n.");
+            }
+        } catch (RuntimeException errorNotificacion) {
+            System.err.println("La evaluacion se asigno, pero fallo la preparacion de la notificacion: "
+                    + errorNotificacion.getMessage());
+        }
+
+        return guardada;
     }
 
     public List<EvaluacionAsignadaModel> listarTodas() {
@@ -101,6 +117,13 @@ public class EvaluacionAsignadaService {
     public EvaluacionAsignadaModel obtenerPorId(Long id) {
         return evaluacionAsignadaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Asignacion de evaluacion no encontrada"));
+    }
+
+    @Transactional
+    public void eliminar(Long id) {
+        obtenerPorId(id);
+        respuestaEvaluacionRepository.deleteByAsignacionId(id);
+        evaluacionAsignadaRepository.deleteById(id);
     }
 
     public EvaluacionAsignadaModel registrarDecisionRrhh(Long id, boolean aprobado) {

@@ -102,6 +102,7 @@ export type PreguntaApi = {
   pregunta: string;
   tipo: string;
   respuestaCorrecta?: string;
+  opciones?: string[];
   peso?: number;
 };
 
@@ -418,6 +419,7 @@ export async function crearPreguntaEvaluacion(
     pregunta: string;
     tipo: string;
     respuestaCorrecta: string;
+    opciones?: string[];
     peso?: number;
   },
 ) {
@@ -490,6 +492,12 @@ export async function asignarEvaluacion(data: {
     },
   );
   return response.data;
+}
+
+export async function eliminarAsignacionEvaluacion(id: number) {
+  return apiRequest<ApiEnvelope<unknown>>(`/admin/evaluaciones/asignaciones/${id}`, {
+    method: "DELETE",
+  });
 }
 
 export async function guardarRespuestasEvaluacion(

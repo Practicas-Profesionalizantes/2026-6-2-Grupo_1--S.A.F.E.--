@@ -13,4 +13,6 @@ public interface RespuestaEvaluacionRepository extends JpaRepository<RespuestaEv
     List<RespuestaEvaluacionModel> findByAsignacionId(Long idAsignacion);
 
     Optional<RespuestaEvaluacionModel> findByAsignacionIdAndPreguntaId(Long idAsignacion, Long idPregunta);
+
+    void deleteByAsignacionId(Long idAsignacion);
 }

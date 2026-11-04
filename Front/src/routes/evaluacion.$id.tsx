@@ -196,16 +196,41 @@ function RendirEvaluacion() {
                         {pregunta.tipo} · {pregunta.peso ?? 1} pts
                       </span>
                     </div>
-                    <textarea
-                      rows={4}
-                      value={respuestas[pregunta.id] ?? ""}
-                      disabled={yaEnviada || tiempoAgotado || enviando}
-                      onChange={(event) =>
-                        setRespuestas((actual) => ({ ...actual, [pregunta.id]: event.target.value }))
-                      }
-                      placeholder="Escribi tu respuesta..."
-                      className="mt-3 w-full rounded-lg border border-input bg-surface-2/60 p-3 text-sm outline-none focus:ring-2 focus:ring-ring/60"
-                    />
+                    {((pregunta.tipo === "OPCION_MULTIPLE" || pregunta.tipo === "VERDADERO_FALSO") &&
+                      (pregunta.opciones?.length ?? 0) > 0) ? (
+                      <div className="mt-3 space-y-2 rounded-lg border border-border bg-surface-2/45 p-3">
+                        {(pregunta.opciones ?? []).map((opcion) => (
+                          <label
+                            key={opcion}
+                            className="flex cursor-pointer items-center gap-3 rounded-lg border border-transparent px-3 py-2 transition-colors hover:border-primary/30 hover:bg-primary/5"
+                          >
+                            <input
+                              type="radio"
+                              name={`pregunta-${pregunta.id}`}
+                              value={opcion}
+                              checked={respuestas[pregunta.id] === opcion}
+                              disabled={yaEnviada || tiempoAgotado || enviando}
+                              onChange={(event) =>
+                                setRespuestas((actual) => ({ ...actual, [pregunta.id]: event.target.value }))
+                              }
+                              className="size-4 accent-primary"
+                            />
+                            <span className="text-sm">{opcion}</span>
+                          </label>
+                        ))}
+                      </div>
+                    ) : (
+                      <textarea
+                        rows={4}
+                        value={respuestas[pregunta.id] ?? ""}
+                        disabled={yaEnviada || tiempoAgotado || enviando}
+                        onChange={(event) =>
+                          setRespuestas((actual) => ({ ...actual, [pregunta.id]: event.target.value }))
+                        }
+                        placeholder={pregunta.tipo === "RESPUESTA_CORTA" ? "Escribi tu respuesta..." : "Desarrolla tu respuesta..."}
+                        className="mt-3 w-full rounded-lg border border-input bg-surface-2/60 p-3 text-sm outline-none focus:ring-2 focus:ring-ring/60"
+                      />
+                    )}
                   </li>
                 ))}
               </ol>

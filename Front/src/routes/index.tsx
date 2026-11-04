@@ -9,7 +9,6 @@ import {
   Workflow,
 } from "lucide-react";
 import { Reveal, useScrolled } from "@/components/safe/reveal";
-import { embudo } from "@/lib/safe-data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -63,6 +62,13 @@ const features = [
     titulo: "Decisión humana",
     texto: "La IA asiste, nunca decide. La contratación final es responsabilidad de RRHH.",
   },
+];
+
+const processSteps = [
+  { icon: ClipboardCheck, title: "Postulacion", text: "El postulante completa su perfil y se postula a los puestos disponibles." },
+  { icon: BrainCircuit, title: "Analisis del CV", text: "SAFE analiza el CV y guarda el resultado para que RRHH lo revise." },
+  { icon: Sparkles, title: "Evaluaciones", text: "RRHH asigna evaluaciones con fecha, horario y preguntas adecuadas al puesto." },
+  { icon: Trophy, title: "Decision de RRHH", text: "Los resultados y el ranking ayudan a tomar la decision final sobre cada postulacion." },
 ];
 
 function Landing() {
@@ -141,11 +147,12 @@ function Landing() {
           </Reveal>
 
           <Reveal delay={320}>
-            <div className="mt-16 grid gap-4 sm:grid-cols-4">
-              {embudo.map((e) => (
-                <div key={e.etapa} className="surface-panel lift rounded-2xl px-5 py-6">
-                  <p className="font-display text-3xl font-semibold gradient-text">{e.valor}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{e.etapa}</p>
+            <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {processSteps.map((step) => (
+                <div key={step.title} className="surface-panel lift rounded-2xl px-5 py-6 text-left">
+                  <step.icon className="size-5 text-primary" />
+                  <p className="mt-4 font-semibold">{step.title}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.text}</p>
                 </div>
               ))}
             </div>
@@ -176,6 +183,7 @@ function Landing() {
         </div>
       </section>
 
+      {false && (
       <section className="mx-auto max-w-6xl px-5 pb-24">
         <Reveal>
           <div className="surface-panel glow-shadow flex flex-col items-start gap-6 rounded-3xl p-8 md:flex-row md:items-center md:justify-between md:p-12">
@@ -202,6 +210,7 @@ function Landing() {
           </div>
         </Reveal>
       </section>
+      )}
 
       <footer className="border-t border-border/70 px-5 py-8">
         <p className="mx-auto max-w-6xl text-sm text-muted-foreground">

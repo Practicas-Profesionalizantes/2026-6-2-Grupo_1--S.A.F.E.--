@@ -1,6 +1,7 @@
 package com.safe.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class PreguntaRequestDTO {
 
@@ -8,6 +9,7 @@ public class PreguntaRequestDTO {
     private String tipo;
     private String respuestaCorrecta;
     private BigDecimal peso;
+    private List<String> opciones;
 
     public String getPregunta() {
         return pregunta;
@@ -39,5 +41,13 @@ public class PreguntaRequestDTO {
 
     public void setPeso(BigDecimal peso) {
         this.peso = peso;
+    }
+
+    public List<String> getOpciones() {
+        return opciones;
+    }
+
+    public void setOpciones(List<String> opciones) {
+        this.opciones = opciones;
     }
 }

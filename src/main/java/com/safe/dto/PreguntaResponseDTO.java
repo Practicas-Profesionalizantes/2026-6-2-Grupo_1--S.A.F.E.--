@@ -3,6 +3,7 @@ package com.safe.dto;
 import com.safe.model.PreguntaModel;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class PreguntaResponseDTO {
 
@@ -12,6 +13,7 @@ public class PreguntaResponseDTO {
     private String tipo;
     private String respuestaCorrecta;
     private BigDecimal peso;
+    private List<String> opciones;
 
     public PreguntaResponseDTO(PreguntaModel pregunta) {
         this.id = pregunta.getId();
@@ -20,6 +22,7 @@ public class PreguntaResponseDTO {
         this.tipo = pregunta.getTipo();
         this.respuestaCorrecta = pregunta.getRespuestaCorrecta();
         this.peso = pregunta.getPeso();
+        this.opciones = pregunta.getOpciones();
     }
 
     public Long getId() {
@@ -44,5 +47,9 @@ public class PreguntaResponseDTO {
 
     public BigDecimal getPeso() {
         return peso;
+    }
+
+    public List<String> getOpciones() {
+        return opciones;
     }
 }

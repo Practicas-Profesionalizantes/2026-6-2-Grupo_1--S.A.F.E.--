@@ -9,8 +9,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.OrderColumn;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "pregunta")
@@ -35,6 +40,12 @@ public class PreguntaModel {
 
     @Column(name = "Peso", precision = 5, scale = 2)
     private BigDecimal peso;
+
+    @ElementCollection
+    @CollectionTable(name = "pregunta_opcion", joinColumns = @JoinColumn(name = "ID_pregunta"))
+    @Column(name = "opcion", nullable = false, length = 1000)
+    @OrderColumn(name = "orden")
+    private List<String> opciones = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -78,5 +89,13 @@ public class PreguntaModel {
 
     public void setPeso(BigDecimal peso) {
         this.peso = peso;
+    }
+
+    public List<String> getOpciones() {
+        return opciones;
+    }
+
+    public void setOpciones(List<String> opciones) {
+        this.opciones = opciones == null ? new ArrayList<>() : new ArrayList<>(opciones);
     }
 }

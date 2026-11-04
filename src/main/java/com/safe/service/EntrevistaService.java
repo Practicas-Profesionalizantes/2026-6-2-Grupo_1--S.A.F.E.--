@@ -17,14 +17,17 @@ public class EntrevistaService {
     private final EntrevistaRepository entrevistaRepository;
     private final PostulanteRepository postulanteRepository;
     private final PuestoRepository puestoRepository;
+    private final N8nWorkflowService n8nWorkflowService;
 
     public EntrevistaService(
             EntrevistaRepository entrevistaRepository,
             PostulanteRepository postulanteRepository,
-            PuestoRepository puestoRepository) {
+            PuestoRepository puestoRepository,
+            N8nWorkflowService n8nWorkflowService) {
         this.entrevistaRepository = entrevistaRepository;
         this.postulanteRepository = postulanteRepository;
         this.puestoRepository = puestoRepository;
+        this.n8nWorkflowService = n8nWorkflowService;
     }
 
     public EntrevistaModel crear(EntrevistaRequestDTO dto) {
@@ -37,7 +40,13 @@ public class EntrevistaService {
         entrevista.setPostulante(postulante);
         aplicarDatos(entrevista, dto);
 
-        return entrevistaRepository.save(entrevista);
+        EntrevistaModel guardada = entrevistaRepository.save(entrevista);
+        boolean notificacionEnviada = n8nWorkflowService.enviarNotificacionEntrevista(guardada);
+        if (!notificacionEnviada) {
+            System.err.println("La entrevista se guardo, pero no se pudo enviar la notificacion a n8n.");
+        }
+
+        return guardada;
     }
 
     public List<EntrevistaModel> listarTodas() {

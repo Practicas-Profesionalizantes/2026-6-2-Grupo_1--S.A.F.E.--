@@ -2,12 +2,15 @@ package com.safe.service;
 
 import com.safe.dto.NotificacionWorkflowDTO;
 import com.safe.model.EvaluacionAsignadaModel;
+import com.safe.model.EntrevistaModel;
 import com.safe.model.PostulanteModel;
 import com.safe.model.PreguntaModel;
 import com.safe.model.RespuestaEvaluacionModel;
 import com.safe.repository.PostulanteRepository;
 import com.safe.repository.PreguntaRepository;
+import com.safe.repository.PuestoRepository;
 import com.safe.repository.RespuestaEvaluacionRepository;
+import com.safe.repository.EvaluacionRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +29,8 @@ public class N8nWorkflowService {
     private final PreguntaRepository preguntaRepository;
     private final RespuestaEvaluacionRepository respuestaEvaluacionRepository;
     private final PostulanteRepository postulanteRepository;
+    private final PuestoRepository puestoRepository;
+    private final EvaluacionRepository evaluacionRepository;
     private final String publicBaseUrl;
     private final String analisisCvUrl;
     private final String correccionEvaluacionUrl;
@@ -35,6 +40,8 @@ public class N8nWorkflowService {
             PreguntaRepository preguntaRepository,
             RespuestaEvaluacionRepository respuestaEvaluacionRepository,
             PostulanteRepository postulanteRepository,
+            PuestoRepository puestoRepository,
+            EvaluacionRepository evaluacionRepository,
             @Value("${safe.api.public-base-url:http://localhost:8080}") String publicBaseUrl,
             @Value("${n8n.webhook.analisis-cv-url:}") String analisisCvUrl,
             @Value("${n8n.webhook.correccion-evaluacion-url:}") String correccionEvaluacionUrl,
@@ -42,6 +49,8 @@ public class N8nWorkflowService {
         this.preguntaRepository = preguntaRepository;
         this.respuestaEvaluacionRepository = respuestaEvaluacionRepository;
         this.postulanteRepository = postulanteRepository;
+        this.puestoRepository = puestoRepository;
+        this.evaluacionRepository = evaluacionRepository;
         this.publicBaseUrl = publicBaseUrl;
         this.analisisCvUrl = analisisCvUrl;
         this.correccionEvaluacionUrl = correccionEvaluacionUrl;
@@ -140,12 +149,65 @@ public class N8nWorkflowService {
         return enviar(notificacionUrl, payload);
     }
 
+    public boolean enviarNotificacionEntrevista(EntrevistaModel entrevista) {
+        NotificacionWorkflowDTO dto = new NotificacionWorkflowDTO();
+        dto.setIdPostulante(entrevista.getPostulante().getId());
+        dto.setTipo("ENTREVISTA_ASIGNADA");
+        dto.setEstado("PENDIENTE_ENVIO");
+        dto.setMensaje("Se te asigno una entrevista.");
+        dto.setDetalle("Entrevista asignada por Recursos Humanos.");
+
+        Map<String, Object> datos = new HashMap<>();
+        datos.put("puesto", entrevista.getPuesto() != null
+                ? entrevista.getPuesto().getNombrePuesto()
+                : "Entrevista general");
+        datos.put("fecha", entrevista.getFecha());
+        datos.put("hora", entrevista.getHora());
+        datos.put("modalidad", entrevista.getModalidad());
+        datos.put("ubicacion", entrevista.getUbicacion());
+        datos.put("observaciones", entrevista.getObservaciones());
+        dto.setDatos(datos);
+
+        return enviarNotificacion(dto);
+    }
+
+    public boolean enviarNotificacionEvaluacion(EvaluacionAsignadaModel asignacion) {
+        NotificacionWorkflowDTO dto = new NotificacionWorkflowDTO();
+        dto.setIdPostulante(asignacion.getPostulante().getId());
+        dto.setTipo("EVALUACION_ASIGNADA");
+        dto.setEstado("PENDIENTE_ENVIO");
+        dto.setMensaje("Se te asigno una evaluacion.");
+        dto.setDetalle("Evaluacion asignada por Recursos Humanos.");
+
+        String nombrePuesto = "Puesto";
+        if (asignacion.getIdPuesto() != null) {
+          nombrePuesto = puestoRepository.findById(Long.valueOf(asignacion.getIdPuesto()))
+                    .map(puesto -> puesto.getNombrePuesto())
+                    .orElse(nombrePuesto);
+        }
+
+        Map<String, Object> datos = new HashMap<>();
+        datos.put("puesto", nombrePuesto);
+        String nombreEvaluacion = evaluacionRepository.findById(asignacion.getEvaluacion().getId())
+                .map(evaluacion -> evaluacion.getNombre())
+                .orElse("Evaluacion");
+        datos.put("evaluacion", nombreEvaluacion);
+        datos.put("fecha", asignacion.getFecha());
+        datos.put("horaInicio", asignacion.getHoraInicio());
+        datos.put("horaFin", asignacion.getHoraFin());
+        datos.put("observaciones", asignacion.getObservaciones());
+        dto.setDatos(datos);
+
+        return enviarNotificacion(dto);
+    }
+
     private Map<String, Object> mapearPregunta(PreguntaModel pregunta, Map<Long, String> respuestasPorPregunta) {
         Map<String, Object> data = new HashMap<>();
         data.put("id", pregunta.getId());
         data.put("pregunta", pregunta.getPregunta());
         data.put("tipo", pregunta.getTipo());
         data.put("respuestaCorrecta", pregunta.getRespuestaCorrecta());
+        data.put("opciones", pregunta.getOpciones());
         data.put("respuestaPostulante", respuestasPorPregunta.getOrDefault(pregunta.getId(), ""));
         data.put("peso", pregunta.getPeso());
         return data;

@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 @Service
 public class PreguntaService {
@@ -60,6 +62,7 @@ public class PreguntaService {
         pregunta.setTipo(dto.getTipo().trim().toUpperCase());
         pregunta.setRespuestaCorrecta(dto.getRespuestaCorrecta().trim());
         pregunta.setPeso(dto.getPeso() != null ? dto.getPeso() : BigDecimal.ONE);
+        pregunta.setOpciones(normalizarOpciones(dto.getOpciones(), pregunta.getTipo()));
     }
 
     private void validar(PreguntaRequestDTO dto) {
@@ -79,6 +82,16 @@ public class PreguntaService {
             throw new IllegalArgumentException("La respuesta correcta es obligatoria");
         }
 
+        String tipo = dto.getTipo().trim().toUpperCase(Locale.ROOT);
+        List<String> opciones = normalizarOpciones(dto.getOpciones(), tipo);
+        if ("OPCION_MULTIPLE".equals(tipo) && opciones.size() < 2) {
+            throw new IllegalArgumentException("La opcion multiple debe tener al menos dos opciones");
+        }
+        if (("OPCION_MULTIPLE".equals(tipo) || "VERDADERO_FALSO".equals(tipo))
+                && !opciones.contains(dto.getRespuestaCorrecta().trim())) {
+            throw new IllegalArgumentException("La respuesta correcta debe coincidir con una de las opciones");
+        }
+
         if (dto.getPeso() != null && dto.getPeso().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("El peso debe ser mayor a cero");
         }
@@ -86,5 +99,18 @@ public class PreguntaService {
 
     private boolean estaVacio(String valor) {
         return valor == null || valor.trim().isEmpty();
+    }
+
+    private List<String> normalizarOpciones(List<String> opciones, String tipo) {
+        if (!"OPCION_MULTIPLE".equals(tipo) && !"VERDADERO_FALSO".equals(tipo)) {
+            return List.of();
+        }
+
+        return (opciones == null ? List.<String>of() : opciones).stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(opcion -> !opcion.isEmpty())
+                .distinct()
+                .toList();
     }
 }
