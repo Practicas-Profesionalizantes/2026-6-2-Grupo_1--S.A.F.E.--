@@ -65,6 +65,30 @@ public class UsuarioController {
         return service.login(data.getEmail(), data.getPassword());
     }
 
+    @PostMapping("/bootstrap-admin")
+    public ResponseEntity<Map<String, Object>> bootstrapAdmin(@RequestBody Map<String, String> data) {
+        try {
+            UsuarioModel user = service.bootstrapAdmin(data.get("email"), data.get("secret"));
+            UsuarioResponseDTO dto = new UsuarioResponseDTO(
+                    user.getId(),
+                    user.getDni(),
+                    user.getNombre(),
+                    user.getEmail(),
+                    user.getRol()
+            );
+            return ResponseEntity.ok(Map.of(
+                    "status", "ok",
+                    "message", "Administrador inicial creado",
+                    "data", dto
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
     @PatchMapping("/password")
     public ResponseEntity<Map<String, Object>> cambiarContrasena(@RequestBody Map<String, String> data) {
         try {

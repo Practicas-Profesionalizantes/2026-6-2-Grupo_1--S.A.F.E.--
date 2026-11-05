@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Trophy,
   UserRound,
+  UserCog,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -52,7 +53,12 @@ export function AppShell({
   const navigate = useNavigate();
   const scrolled = useScrolled();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const items = rol === "RRHH" ? navRRHH : navPostulante;
+  const usuarioActual = getStoredUser();
+  const rolVisible = usuarioActual?.rol?.toUpperCase() ?? rol;
+  const esAdmin = rolVisible === "ADMIN";
+  const items = rol === "RRHH"
+    ? [...navRRHH, ...(esAdmin ? [{ to: "/rrhh/usuarios", label: "Usuarios", icon: UserCog }] : [])]
+    : navPostulante;
   const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false);
   const [notificaciones, setNotificaciones] = useState<string[]>([]);
 
@@ -159,7 +165,7 @@ export function AppShell({
               </span>
               <div className="hidden leading-tight sm:block">
                 <p className="text-sm font-medium">{usuario}</p>
-                <p className="text-xs text-muted-foreground">{rol}</p>
+                <p className="text-xs text-muted-foreground">{rolVisible}</p>
               </div>
             </div>
             <button

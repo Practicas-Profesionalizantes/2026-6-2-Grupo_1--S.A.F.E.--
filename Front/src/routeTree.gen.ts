@@ -24,6 +24,7 @@ import { Route as RrhhHistorialRouteImport } from './routes/rrhh/historial'
 import { Route as RrhhPostulacionesRouteImport } from './routes/rrhh/postulaciones'
 import { Route as RrhhPuestosRouteImport } from './routes/rrhh/puestos'
 import { Route as RrhhRankingRouteImport } from './routes/rrhh/ranking'
+import { Route as RrhhUsuariosRouteImport } from './routes/rrhh/usuarios'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -100,6 +101,11 @@ const RrhhRankingRoute = RrhhRankingRouteImport.update({
   path: '/rrhh/ranking',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RrhhUsuariosRoute = RrhhUsuariosRouteImport.update({
+  id: '/rrhh/usuarios',
+  path: '/rrhh/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/rrhh/postulaciones': typeof RrhhPostulacionesRoute
   '/rrhh/puestos': typeof RrhhPuestosRoute
   '/rrhh/ranking': typeof RrhhRankingRoute
+  '/rrhh/usuarios': typeof RrhhUsuariosRoute
   '/rrhh/': typeof RrhhIndexRoute
 }
 export interface FileRoutesByTo {
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/rrhh/postulaciones': typeof RrhhPostulacionesRoute
   '/rrhh/puestos': typeof RrhhPuestosRoute
   '/rrhh/ranking': typeof RrhhRankingRoute
+  '/rrhh/usuarios': typeof RrhhUsuariosRoute
   '/rrhh': typeof RrhhIndexRoute
 }
 export interface FileRoutesById {
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/rrhh/postulaciones': typeof RrhhPostulacionesRoute
   '/rrhh/puestos': typeof RrhhPuestosRoute
   '/rrhh/ranking': typeof RrhhRankingRoute
+  '/rrhh/usuarios': typeof RrhhUsuariosRoute
   '/rrhh/': typeof RrhhIndexRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/rrhh/postulaciones'
     | '/rrhh/puestos'
     | '/rrhh/ranking'
+    | '/rrhh/usuarios'
     | '/rrhh/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/rrhh/postulaciones'
     | '/rrhh/puestos'
     | '/rrhh/ranking'
+    | '/rrhh/usuarios'
     | '/rrhh'
   id:
     | '__root__'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/rrhh/postulaciones'
     | '/rrhh/puestos'
     | '/rrhh/ranking'
+    | '/rrhh/usuarios'
     | '/rrhh/'
   fileRoutesById: FileRoutesById
 }
@@ -222,6 +234,7 @@ export interface RootRouteChildren {
   RrhhPostulacionesRoute: typeof RrhhPostulacionesRoute
   RrhhPuestosRoute: typeof RrhhPuestosRoute
   RrhhRankingRoute: typeof RrhhRankingRoute
+  RrhhUsuariosRoute: typeof RrhhUsuariosRoute
   RrhhIndexRoute: typeof RrhhIndexRoute
 }
 
@@ -332,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RrhhRankingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rrhh/usuarios': {
+      id: '/rrhh/usuarios'
+      path: '/rrhh/usuarios'
+      fullPath: '/rrhh/usuarios'
+      preLoaderRoute: typeof RrhhUsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -350,6 +370,7 @@ const rootRouteChildren: RootRouteChildren = {
   RrhhPostulacionesRoute: RrhhPostulacionesRoute,
   RrhhPuestosRoute: RrhhPuestosRoute,
   RrhhRankingRoute: RrhhRankingRoute,
+  RrhhUsuariosRoute: RrhhUsuariosRoute,
   RrhhIndexRoute: RrhhIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -300,6 +300,19 @@ export async function crearPuesto(data: Omit<PuestoApi, "id">) {
   return response.data;
 }
 
+export async function listarUsuariosAdmin() {
+  const response = await apiRequest<ApiEnvelope<Usuario[]>>("/admin/usuarios");
+  return response.data ?? [];
+}
+
+export async function actualizarRolUsuario(id: number, rol: Rol) {
+  const response = await apiRequest<ApiEnvelope<Usuario>>(`/admin/usuarios/${id}/rol`, {
+    method: "PATCH",
+    body: { rol },
+  });
+  return response.data;
+}
+
 export async function actualizarPuesto(id: number, data: Omit<PuestoApi, "id">) {
   const response = await apiRequest<ApiEnvelope<PuestoApi>>(`/admin/puestos/${id}`, {
     method: "PUT",

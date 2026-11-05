@@ -32,11 +32,13 @@ public class SecurityConfig {
                 .requestMatchers(
                         "/usuario/login",
                         "/usuario/register",
+                        "/usuario/bootstrap-admin",
                         "/puestos",
                         "/puestos/**",
                         "/archivos/cv/**",
                         "/webhooks/n8n/**"
                 ).permitAll()
+                .requestMatchers("/admin/usuarios/**").hasRole("ADMIN")
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "RRHH")
                 .requestMatchers("/postulante/**").hasRole("POSTULANTE")
                 .anyRequest().authenticated()

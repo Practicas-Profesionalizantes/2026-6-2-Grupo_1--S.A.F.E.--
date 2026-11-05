@@ -13,4 +13,5 @@ public interface UsuarioRepository extends JpaRepository<UsuarioModel, Long> {
     // 🔒 VALIDACIONES
     boolean existsByEmail(String email);
     boolean existsByDni(String dni);
+    long countByRolIgnoreCase(String rol);
 }
